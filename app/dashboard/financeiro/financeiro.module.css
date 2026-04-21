@@ -1,0 +1,537 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.03em;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: var(--carbon-400);
+}
+
+.monthNav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--carbon-800);
+  padding: 4px 12px;
+  border-radius: 100px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.navBtn {
+  background: none;
+  border: none;
+  color: var(--carbon-400);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 4px;
+  transition: color 0.2s;
+}
+
+.navBtn:hover {
+  color: #fff;
+}
+
+.monthLabel {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fff;
+  min-width: 80px;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+/* Métricas */
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .metricsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.metricCard {
+  background: var(--carbon-800);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metricLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--carbon-400);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.metricValue {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.income { color: var(--emerald-400); }
+.expense { color: #F87171; }
+
+.metricDiff {
+  font-size: 0.75rem;
+  color: var(--carbon-500);
+}
+
+.profitPositive { border-left: 4px solid var(--emerald-500); }
+.profitNegative { border-left: 4px solid #EF4444; }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 2px;
+}
+
+.tab {
+  padding: 8px 20px;
+  background: none;
+  border: none;
+  color: var(--carbon-500);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.tabActive {
+  color: #fff;
+}
+
+.tabActive::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--emerald-500);
+  border-radius: 100px;
+}
+
+/* Gráficos */
+.chartsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 1100px) {
+  .chartsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chartCard {
+  background: var(--carbon-800);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.chartTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.barChart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 200px;
+  padding-top: 20px;
+  gap: 10px;
+}
+
+.barCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+}
+
+.barPair {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+}
+
+.barItem {
+  width: 12px;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.barLabel {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--carbon-500);
+}
+
+.barLegend {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 8px;
+}
+
+.barLegend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--carbon-400);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Pie Chart */
+.pieSection {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.pieRing {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pieCenter {
+  width: 80px;
+  height: 80px;
+  background: var(--carbon-800);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+}
+
+.pieLegend {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pieLegendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.pieLegendLabel {
+  color: var(--carbon-300);
+  flex: 1;
+}
+
+.pieLegendValue {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Comparativo */
+.compareSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.compareGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.compareLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--carbon-300);
+}
+
+.compareRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.compareMonth {
+  font-size: 0.75rem;
+  color: var(--carbon-500);
+  width: 30px;
+  text-transform: capitalize;
+}
+
+.compareTrack {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.compareFill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.8s ease;
+}
+
+.compareValue {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  width: 100px;
+  text-align: right;
+}
+
+/* Lista */
+.txList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.txItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--carbon-800);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-lg);
+  transition: all 0.2s;
+}
+
+.txItem:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.txIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.txIncome .txIcon { background: rgba(16, 185, 129, 0.12); color: var(--emerald-400); }
+.txExpense .txIcon { background: rgba(239, 68, 68, 0.12); color: #F87171; }
+
+.txInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.txDesc {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.txMeta {
+  font-size: 0.78rem;
+  color: var(--carbon-500);
+}
+
+.txAmount {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.amountIncome { color: var(--emerald-400); }
+.amountExpense { color: #F87171; }
+
+.deleteBtn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--carbon-600);
+  cursor: pointer;
+  transition: color 0.2s;
+  opacity: 0;
+}
+
+.txItem:hover .deleteBtn {
+  opacity: 1;
+}
+
+.deleteBtn:hover {
+  color: #EF4444;
+}
+
+.empty {
+  text-align: center;
+  color: var(--carbon-500);
+  padding: 60px;
+  font-size: 0.95rem;
+}
+
+/* Modal */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+
+.modal {
+  background: var(--carbon-800);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 520px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.modalHeader h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.closeBtn {
+  background: none; border: none; color: var(--carbon-400); cursor: pointer; font-size: 1.1rem;
+}
+
+.modalBody {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modalFooter {
+  display: flex; gap: 10px; justify-content: flex-end; padding: 20px 28px; border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.typeToggle {
+  display: flex;
+  gap: 8px;
+  background: var(--carbon-900);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+}
+
+.typeBtn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  color: var(--carbon-400);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.typeBtnIncome { background: rgba(16, 185, 129, 0.1); color: var(--emerald-400); }
+.typeBtnExpense { background: rgba(239, 68, 68, 0.1); color: #F87171; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 0.82rem; font-weight: 600; color: var(--carbon-200); }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.input { background: var(--carbon-700); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-md); color: #fff; padding: 11px 14px; font-size: 0.9rem; width: 100%; font-family: inherit; }
+.input:focus { outline: none; border-color: var(--emerald-500); }
+
+.btnPrimary {
+  display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; background: linear-gradient(135deg, var(--emerald-600), var(--emerald-500)); color: #fff; font-weight: 600; font-size: 0.9rem; border: none; border-radius: var(--radius-md); cursor: pointer; transition: all 0.25s;
+}
+
+.btnSecondary {
+  display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; background: transparent; color: var(--carbon-300); font-weight: 500; font-size: 0.9rem; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: var(--radius-md); cursor: pointer;
+}
+
+.toast {
+  position: fixed; bottom: 28px; right: 28px; padding: 14px 20px; border-radius: var(--radius-md); font-size: 0.9rem; font-weight: 500; z-index: 200; animation: fadeIn 0.3s ease-out;
+}
+.toastSuccess { background: rgba(16, 185, 129, 0.9); color: #fff; }
+.toastError { background: rgba(239, 68, 68, 0.9); color: #fff; }

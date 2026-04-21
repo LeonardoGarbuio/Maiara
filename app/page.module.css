@@ -1,0 +1,422 @@
+/* ==========================================
+   LOGIN PAGE - SPLIT SCREEN PREMIUM
+   ========================================== */
+
+.container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* ==========================================
+   LEFT SIDE - FORM
+   ========================================== */
+
+.formSide {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--carbon-950);
+  padding: 40px;
+  position: relative;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.formWrapper {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Logo */
+.logoArea {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 48px;
+  animation: slideInLeft 0.6s ease-out;
+}
+
+.logoIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoTitle {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #FFF;
+  line-height: 1.2;
+}
+
+.logoSubtitle {
+  font-size: 0.8rem;
+  color: var(--carbon-300);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Welcome */
+.welcomeArea {
+  margin-bottom: 36px;
+  animation: slideInLeft 0.7s ease-out;
+}
+
+.welcomeTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #FFF;
+  margin-bottom: 8px;
+}
+
+.welcomeSubtitle {
+  font-size: 0.95rem;
+  color: var(--carbon-300);
+  font-weight: 400;
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: slideInLeft 0.8s ease-out;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--carbon-200);
+  letter-spacing: 0.02em;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 14px;
+  color: var(--carbon-400);
+  pointer-events: none;
+  transition: color 0.3s ease;
+}
+
+.input {
+  width: 100%;
+  padding: 14px 14px 14px 44px;
+  background: var(--carbon-800);
+  border: 1px solid var(--carbon-600);
+  border-radius: var(--radius-md);
+  color: #FFF;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.input::placeholder {
+  color: var(--carbon-400);
+}
+
+.input:focus {
+  border-color: var(--emerald-500);
+  background: var(--carbon-700);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.input:focus ~ .inputIcon,
+.inputWrapper:focus-within .inputIcon {
+  color: var(--emerald-400);
+}
+
+.togglePassword {
+  position: absolute;
+  right: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--carbon-400);
+  padding: 4px;
+  transition: color 0.3s ease;
+  display: flex;
+}
+
+.togglePassword:hover {
+  color: var(--emerald-400);
+}
+
+/* Submit */
+.submitBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px;
+  margin-top: 8px;
+  background: linear-gradient(135deg, var(--emerald-600), var(--emerald-500));
+  color: #FFF;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.submitBtn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  );
+  transform: rotate(45deg);
+  transition: all 0.5s ease;
+}
+
+.submitBtn:hover {
+  background: linear-gradient(135deg, var(--emerald-500), var(--emerald-400));
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
+  transform: translateY(-2px);
+}
+
+.submitBtn:hover::after {
+  left: 100%;
+}
+
+.submitBtn:active {
+  transform: translateY(0);
+}
+
+.submitBtn.loading {
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #FFF;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Footer Slogan */
+.footerSlogan {
+  margin-top: 48px;
+  font-size: 0.8rem;
+  color: var(--carbon-400);
+  font-style: italic;
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+
+/* Error Box */
+.errorBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: var(--radius-md);
+  color: #F87171;
+  font-size: 0.88rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* ==========================================
+   RIGHT SIDE - VISUAL / IMAGE
+   ========================================== */
+
+.imageSide {
+  flex: 1.15;
+  position: relative;
+  background:
+    linear-gradient(145deg, rgba(5, 150, 105, 0.15), rgba(10, 10, 10, 0.9)),
+    linear-gradient(to bottom right, var(--carbon-800), var(--carbon-950));
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+
+.imageSide::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 70% 20%, rgba(16, 185, 129, 0.08), transparent),
+    radial-gradient(ellipse 60% 60% at 30% 80%, rgba(5, 150, 105, 0.06), transparent);
+  z-index: 1;
+}
+
+.imageSide::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  z-index: 0;
+}
+
+.imageOverlay {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: 60px;
+  animation: fadeIn 0.9s ease-out;
+}
+
+.imageContent {
+  max-width: 520px;
+}
+
+.imageTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--emerald-400);
+  margin-bottom: 28px;
+  letter-spacing: 0.02em;
+}
+
+.tagDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--emerald-400);
+  animation: pulse-glow 2s infinite;
+}
+
+.imageTitle {
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1.25;
+  color: #FFF;
+  margin-bottom: 16px;
+  letter-spacing: -0.03em;
+}
+
+.imageTitle em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--emerald-400), var(--lime-400));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.imageSubtitle {
+  font-size: 1.05rem;
+  color: var(--carbon-300);
+  line-height: 1.6;
+  margin-bottom: 40px;
+}
+
+/* Stats Row */
+.statsRow {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 24px;
+  background: rgba(10, 10, 10, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(8px);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.statNumber {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--emerald-400);
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--carbon-300);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+.statDivider {
+  width: 1px;
+  height: 36px;
+  background: var(--carbon-600);
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+
+@media (max-width: 900px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .imageSide {
+    display: none;
+  }
+
+  .formSide {
+    min-height: 100vh;
+    padding: 32px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .welcomeTitle {
+    font-size: 1.4rem;
+  }
+
+  .formWrapper {
+    max-width: 100%;
+  }
+
+  .footerSlogan {
+    margin-top: 32px;
+  }
+}

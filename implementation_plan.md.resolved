@@ -1,0 +1,192 @@
+# Estruturação de Banco de Dados e Fluxo - Tia Mai
+
+Este documento detalha a arquitetura do banco de dados e o fluxo operacional do sistema, focando na distinção entre a gestão administrativa (Tia Mai) e a alimentação operacional (Estagiários).
+
+## User Review Required
+
+> [!IMPORTANT]
+> **Definição de Stack:** Proponho o uso de **Next.js + Prisma + Supabase (PostgreSQL)**. O Supabase facilita a gestão de arquivos (plantas/fotos), autenticação e o banco de dados SQL. Podemos prosseguir com essa stack?
+
+> [!IMPORTANT]
+> **Fluxo de Finanças:** A Tia Mai deseja que os estagiários também lancem despesas/custos ou isso é restrito apenas a ela? No plano atual, estagiários não veem o financeiro.
+
+## Identidade Visual & Design
+*   **Cor Destaque:** Verde (Paleta variando de verde profundo para luxo e verde limão para alertas/ação).
+*   **Tema:** Dark Mode premium com estética minimalista.
+*   **Logo:** Utilizar a logo atual da Tia Mai.
+
+## Proposta de Banco de Dados (Schema SQL)
+
+```mermaid
+erDiagram
+    USER ||--o{ PROJECT : "manages/feeds"
+    USER ||--o{ CERTIFICATE : "uploads"
+    CLIENT ||--o{ PROJECT : "owns"
+    PROJECT ||--o{ PHASE : "has"
+    PROJECT ||--o{ PROJECT_HISTORY : "has snapshots"
+    PHASE ||--o{ DOCUMENT : "contains"
+    PHASE ||--o{ TASK : "contains"
+    PROJECT ||--o{ FINANCIAL_TRANSACTION : "generates"
+
+    PROJECT_HISTORY {
+        uuid id PK
+        uuid project_id FK
+        jsonb data_snapshot
+        timestamp changed_at
+        uuid changed_by FK
+    }
+
+    USER {
+        uuid id PK
+        string name
+        string email
+        string role "ADMIN | TEAM"
+        string avatar_url
+        timestamp last_login
+        timestamp created_at
+        uuid created_by FK
+    }
+
+    CERTIFICATE {
+        uuid id PK
+        uuid user_id FK
+        date absence_date
+        string file_url
+        string description
+        enum status "PENDING | APPROVED | REJECTED"
+    }
+
+    CLIENT {
+        uuid id PK
+        string name
+        string contact_info
+        string address
+    }
+
+    PROJECT {
+        uuid id PK
+        string name
+        uuid client_id FK
+        enum type "INTERIOR | ARCHITECTURAL"
+        enum status "PROSPECT | ACTIVE | PAUSED | FINISHED"
+        date deadline
+        decimal total_value
+    }
+
+    PHASE {
+        uuid id PK
+        uuid project_id FK
+        string name
+        int order
+        enum status "PENDING | IN_PROGRESS | COMPLETED"
+        date deadline
+    }
+
+    TASK {
+        uuid id PK
+        uuid phase_id FK
+        string description
+        boolean is_completed
+        uuid assigned_to FK "NULL = Atribuída a todos"
+    }
+
+    DOCUMENT {
+        uuid id PK
+        uuid project_id FK
+        string name
+        string file_url
+        string type "CONTRACT | PLAN | PHOTO | RRT"
+    }
+
+    FINANCIAL_TRANSACTION {
+        uuid id PK
+        uuid project_id FK
+        enum type "INCOME | EXPENSE"
+        decimal amount
+        date transaction_date
+        string description
+    }
+```
+
+## Fluxo de Trabalho (Workflow)
+
+### 1. Camada Administrativa (Tia Mai)
+*   **Cadastro:** Criar Cliente -> Criar Projeto.
+*   **Gestão de Equipe:** Criar, editar e excluir perfis de novos **Admins** e **Estagiários**.
+*   **Segurança e Integridade:**
+    *   Monitorar o campo `last_login` para saber quem acessou o sistema e quando.
+    *   **Histórico de Versões:** Acesso a snapshots automáticos de projetos (versões antigas) caso um estagiário cometa um erro.
+*   **Configuração:** Definir datas globais e valor do contrato.
+*   **Monitoramento:** Painel "Alarme Visual" que mostra quais projetos estão com fases atrasadas.
+*   **Gestão de Pessoal:** Painel para revisão e aprovação de atestados enviados pela equipe.
+*   **Financeiro & Relatórios:**
+    *   Visão consolidada de lucros e pagamentos pendentes.
+    *   **Gráficos de Barra:** Comparação de faturamento (Mês Atual vs. Anterior).
+    *   **Gráficos de Pizza:** Distribuição de despesas por categoria e status de projetos.
+
+### 2. Camada Operacional (Estagiários/Equipe)
+*   **Dashboard Operacional:** Lista de tarefas e fases sob sua responsabilidade.
+*   **Alimentação:**
+    *   Mudar status de fases (ex: "Levantamento" -> "Concluído").
+    *   Upload de pranchas técnicas e fotos de obra.
+    *   Marcar itens de checklist (TASKS).
+*   **Justificativa de Faltas:** Área para upload de atestados médicos com data e justificativa.
+*   **Restrição:** Não visualizam `total_value` do projeto nem o módulo `FINANCIAL_TRANSACTION`.
+
+## Plano de Ação
+
+### Fase 1: Setup do Banco de Dados
+1.  Configurar Schema Prisma/SQL.
+2.  Sincronizar com Supabase.
+3.  Criar scripts de "Seed" com os modelos de fases para Interiores e Arquitetônico.
+
+### Fase 2: Implementação do Core (Admin)
+1.  Telas de CRUD de Projetos e Clientes.
+2.  Lógica de "Alarme Visual" (Datas comparadas com o servidor).
+
+### Fase 3: Implementação da Interface Team
+1.  Dashboard simplificado.
+2.  Módulo de upload de documentos integrado ao Supabase Storage.
+
+## Camada de Segurança Técnica (Fator Humano)
+
+> [!IMPORTANT]
+> **Versionamento via Triggers:** Para evitar a perda de dados, implementaremos uma **Trigger SQL** no Postgres. 
+> - Sempre que um projeto for editado, o banco de dados salvará automaticamente o estado anterior na tabela `PROJECT_HISTORY`.
+> - Isso garante que, mesmo que um estagiário apague uma descrição importante ou altere um valor por engano, a Tia Mai possa consultar e restaurar a versão anterior em segundos.
+
+## Modelos de Etapas (Templates)
+
+O sistema virá pré-configurado com os dois fluxos principais:
+
+### Projeto de Interiores
+1. REUNIÃO COM ORÇAMENTO
+2. FECHAMENTO/PAGAMENTO/CONTRATO
+3. BRIEFING
+4. LEVANTAMENTO IN LOCO
+5. ANTEPROJETO LAYOUT
+6. REUNIÃO PARA APROVAÇÃO LAYOUT
+7. PROJETO PRELIMINAR
+8. REUNIÃO PARA APROVAÇÃO DE PROJETO PRELIMINAR
+9. ALTERAÇÕES NO PROJETO
+10. PROJETO EXECUTIVO
+
+### Projeto Arquitetônico
+1. REUNIÃO COM ORÇAMENTO
+2. FECHAMENTO
+3. BRIEFING
+4. LEVANTAMENTO TOPOGRAFICO/ SONDAGEM
+5. ANTEPROJETO
+6. REUNIÃO PARA APROVAÇÃO DE ANTEPROJETO
+7. ALTERAÇÕES POSSÍVEIS
+8. PROJETO EXECUTIVO
+9. ENCAMINHAR ENG. CIVIL
+10. CONDOMINIO
+11. PREFEITURA
+
+## Plano de Verificação
+
+### Testes Manuais
+- Criar um projeto como Admin e verificar se ele aparece no dashboard do "Team".
+- Tentar acessar a rota financeira com um usuário "Team" e garantir o bloqueio (403).
+- Simular um atraso em uma fase e verificar se o projeto fica **vermelho** no dashboard.
