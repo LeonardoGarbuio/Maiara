@@ -2,6 +2,8 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/users - Lista todos os usuários
 export async function GET() {
   try {

@@ -3,6 +3,8 @@ import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { ensureAdmin } from "@/lib/ensure-admin";
 
+export const dynamic = "force-dynamic";
+
 // POST /api/auth/login - Login real com banco
 export async function POST(request) {
   try {

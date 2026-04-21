@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin, ensureBucketExists } from "@/lib/supabase";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request) {
   try {
     await ensureBucketExists("project-files");

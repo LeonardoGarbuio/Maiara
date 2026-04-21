@@ -2,6 +2,8 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { PHASE_TEMPLATES } from "@/lib/phase-templates";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/projects - Lista todos os projetos
 export async function GET(request) {
   try {
