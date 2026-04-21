@@ -45,28 +45,49 @@ export default function AtestadosPage() {
 
   const handleUpload = async () => {
     if (!form.absenceDate || !form.description) return showToast("Preencha data e descrição", "error");
+    
+    const fileInput = document.getElementById("certificateFile");
+    const file = fileInput?.files[0];
+    if (!file) return showToast("Selecione o arquivo do atestado", "error");
+
     setSaving(true);
     
     try {
+      // 1. Upload do Arquivo Real para o Supabase via nossa API
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("projectId", "certificates"); // Agrupar no bucket
+      formData.append("docType", "OTHER");
+
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) throw new Error("Erro no upload do arquivo");
+      const uploadData = await uploadRes.json();
+
+      // 2. Salvar Registro no Banco
       const res = await fetch("/api/certificates", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: user.id,
           absenceDate: form.absenceDate,
-          fileUrl: "atestado_upload.pdf",
+          fileUrl: uploadData.url,
           description: form.description,
         }),
       });
+
       if (res.ok) {
         const created = await res.json();
         setCertificates(prev => [created, ...prev]);
         showToast("Atestado enviado com sucesso!");
       } else {
-        showToast("Erro ao enviar atestado", "error");
+        showToast("Erro ao salvar registro", "error");
       }
-    } catch {
-      showToast("Erro de conexão", "error");
+    } catch (err) {
+      showToast(err.message || "Erro de conexão", "error");
     }
     setSaving(false);
     setShowModal(false);
@@ -155,7 +176,7 @@ export default function AtestadosPage() {
                   {STATUS_MAP[at.status].label}
                 </div>
                 
-                <a href="#" className={styles.fileLink} onClick={(e) => { e.preventDefault(); alert("Abrindo arquivo..."); }}>
+                <a href={at.fileUrl} target="_blank" rel="noopener noreferrer" className={styles.fileLink}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
                   Ver Documento
                 </a>
@@ -190,9 +211,10 @@ export default function AtestadosPage() {
               </div>
               <div className={styles.field}>
                 <label>Arquivo (PDF ou Imagem) *</label>
-                <div className={styles.uploadBox}>
+                <div className={styles.uploadBox} onClick={() => document.getElementById("certificateFile")?.click()}>
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                  <span>Clique para selecionar ou arraste o arquivo</span>
+                  <span>Clique para selecionar o arquivo</span>
+                  <input type="file" id="certificateFile" hidden accept=".pdf,.jpg,.jpeg,.png" />
                 </div>
               </div>
             </div>

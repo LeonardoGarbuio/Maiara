@@ -39,6 +39,14 @@ export default function EquipePage() {
 
   const handleCreate = async () => {
     if (!form.name || !form.username || !form.password) return showToast("Preencha todos os campos", "error");
+    
+    // Validação de Senha Robusta (Refletindo o Backend)
+    const hasUpper = /[A-Z]/.test(form.password);
+    const hasNumber = /[0-9]/.test(form.password);
+    if (form.password.length < 8 || !hasUpper || !hasNumber) {
+      return showToast("A senha deve ter 8+ caracteres, uma letra maiúscula e um número", "error");
+    }
+
     setSaving(true);
     try {
       const res = await fetch("/api/users", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, createdBy: user?.id }) });
@@ -68,7 +76,12 @@ export default function EquipePage() {
   };
 
   const handleResetPassword = async () => {
-    if (newPwd.length < 4) return showToast("A senha deve ter pelo menos 4 caracteres", "error");
+    // Validação de Senha Robusta (Refletindo o Backend)
+    const hasUpper = /[A-Z]/.test(newPwd);
+    const hasNumber = /[0-9]/.test(newPwd);
+    if (newPwd.length < 8 || !hasUpper || !hasNumber) {
+      return showToast("A senha deve ter 8+ caracteres, uma letra maiúscula e um número", "error");
+    }
     setSaving(true);
     try {
       const res = await fetch(`/api/users/${selectedUserForPwd.id}`, {
@@ -205,8 +218,8 @@ export default function EquipePage() {
               <div className={styles.field}><label>Usuário *</label><input type="text" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} placeholder="nome.sobrenome" className={styles.input} /></div>
               <div className={styles.field}>
                 <label>Senha inicial *</label>
-                <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Mínimo 6 caracteres" className={styles.input} />
-                <span className={styles.hint}>O usuário pode alterar depois</span>
+                <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="8+ caracteres, A-Z e números" className={styles.input} />
+                <span className={styles.hint}>Mínimo 8 caracteres, uma letra maiúscula e um número.</span>
               </div>
             </div>
             <div className={styles.modalFooter}>

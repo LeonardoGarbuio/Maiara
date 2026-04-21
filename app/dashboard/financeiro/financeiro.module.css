@@ -411,26 +411,41 @@
 .amountIncome { color: var(--emerald-400); }
 .amountExpense { color: #F87171; }
 
-.deleteBtn {
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  color: var(--carbon-600);
-  cursor: pointer;
-  transition: color 0.2s;
-  opacity: 0;
-}
-
-.txItem:hover .deleteBtn {
-  opacity: 1;
-}
-
 .deleteBtn:hover {
   color: #EF4444;
+}
+
+/* Restricted Access View (Apertando os Parafusos) */
+.restricted {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 20px;
+  background: var(--carbon-800);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-xl);
+  max-width: 600px;
+  margin: 40px auto;
+  gap: 20px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.restrictedIcon {
+  font-size: 3rem;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.3));
+}
+
+.restricted .title {
+  margin-bottom: 0px;
+}
+
+.restricted .subtitle {
+  max-width: 400px;
+  line-height: 1.6;
+  margin-bottom: 12px;
 }
 
 .empty {

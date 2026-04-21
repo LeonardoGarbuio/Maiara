@@ -15,12 +15,16 @@ export default function FinanceiroPage() {
   const [form, setForm] = useState({ type: "INCOME", amount: "", description: "", category: "Projeto", transactionDate: new Date().toISOString().split("T")[0], projectId: "" });
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
   const today = new Date();
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [viewYear] = useState(today.getFullYear());
 
   useEffect(() => {
+    const stored = localStorage.getItem("tiamai_user");
+    if (stored) setUser(JSON.parse(stored));
+
     async function fetchData() {
       try {
         const [txRes, projRes] = await Promise.all([
@@ -113,6 +117,25 @@ export default function FinanceiroPage() {
           <div>
             <h1 className={styles.title}>Carregando financeiro...</h1>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Barreira Visual de Privacidade (Apertando os Parafusos)
+  if (user?.role !== "ADMIN") {
+    return (
+      <div className={styles.page}>
+        <div className={styles.restricted}>
+          <div className={styles.restrictedIcon}>🔒</div>
+          <h1 className={styles.title}>Acesso Restrito</h1>
+          <p className={styles.subtitle}>
+            Esta área contém dados financeiros sensíveis e é exclusiva para a diretoria. 
+            Seus acessos são monitorados para garantir a segurança da empresa.
+          </p>
+          <button className={styles.btnSecondary} onClick={() => window.location.href = "/dashboard"}>
+            Voltar ao Painel
+          </button>
         </div>
       </div>
     );
