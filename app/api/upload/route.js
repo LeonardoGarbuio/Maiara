@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin, ensureBucketExists } from "@/lib/supabase";
+import { getSupabaseAdmin, ensureBucketExists } from "@/lib/supabase";
 
 export async function POST(request) {
   try {
@@ -29,7 +29,7 @@ export async function POST(request) {
     const buffer = Buffer.from(arrayBuffer);
 
     // Upload para o Supabase
-    const { data, error } = await supabaseAdmin.storage
+    const { data, error } = await getSupabaseAdmin().storage
       .from("project-files")
       .upload(fileName, buffer, {
         contentType: file.type || "application/octet-stream",
@@ -41,7 +41,7 @@ export async function POST(request) {
     }
 
     // Obter URL pública
-    const { data: publicUrlData } = supabaseAdmin.storage
+    const { data: publicUrlData } = getSupabaseAdmin().storage
       .from("project-files")
       .getPublicUrl(fileName);
 
