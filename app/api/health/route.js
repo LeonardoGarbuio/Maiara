@@ -1,9 +1,9 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/health - Heartbeat para manter o Supabase vivo
-// Essa rota é chamada automaticamente pelo Vercel Cron a cada 5 dias
-// para impedir que o banco entre em modo de hibernação.
 export async function GET() {
   try {
     // Consulta mínima: apenas conta 1 registro para "acordar" o banco
