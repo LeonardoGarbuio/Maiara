@@ -34,6 +34,12 @@ export default function ProjetosPage() {
   const [docType, setDocType] = useState("PLAN");
   const [selectedFile, setSelectedFile] = useState(null);
 
+  // Modal Prejuízo/Despesa (Loss Modal)
+  const [showLossModal, setShowLossModal] = useState(false);
+  const [lossData, setLossData] = useState({ projectId: "", projectName: "", amount: "", description: "" });
+  const [savingLoss, setSavingLoss] = useState(false);
+  const [editingLossId, setEditingLossId] = useState(null);
+
   useEffect(() => {
     const stored = localStorage.getItem("tiamai_user");
     let currentUser = null;
@@ -88,6 +94,13 @@ export default function ProjetosPage() {
     setShowModal(true);
   };
 
+  const openLossModal = (project) => {
+    setSelectedProject(project); // Guardamos o projeto selecionado para podermos listar suas transacoes
+    setLossData({ projectId: project.id, projectName: project.name, amount: "", description: "" });
+    setEditingLossId(null);
+    setShowLossModal(true);
+  };
+
   const openEdit = (project) => {
     setSelectedProject(project);
     setForm({
@@ -123,6 +136,14 @@ export default function ProjetosPage() {
         if (res.ok) {
           const updated = await res.json();
           setProjects((prev) => prev.map((p) => p.id === selectedProject.id ? updated : p));
+          
+          if (isAdmin && form.status === "FINISHED" && selectedProject.status !== "FINISHED") {
+            setTimeout(() => {
+              if (confirm("Você alterou o status deste projeto para Concluído! Ocorreu algum prejuízo/custo extra durante a execução que deseja registrar no financeiro?")) {
+                 openLossModal(updated);
+              }
+            }, 300);
+          }
         }
         showToast("Projeto atualizado!");
       } else {
@@ -142,6 +163,101 @@ export default function ProjetosPage() {
     }
     setSaving(false);
     setShowModal(false);
+  };
+
+  const handleSaveLoss = async () => {
+    if (!lossData.amount || parseFloat(lossData.amount) <= 0) return showToast("Digite um valor válido", "error");
+    if (!lossData.description.trim()) return showToast("Digite uma descrição para o prejuízo", "error");
+
+    setSavingLoss(true);
+    try {
+      let createdTx;
+      if (editingLossId) {
+        const res = await fetch(`/api/transactions/${editingLossId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            projectId: lossData.projectId,
+            type: "EXPENSE",
+            amount: parseFloat(lossData.amount),
+            description: lossData.description,
+            category: "Prejuízo/Custo Extra"
+          })
+        });
+        if (!res.ok) throw new Error("Erro ao atualizar prejuízo");
+        createdTx = await res.json();
+      } else {
+        const res = await fetch("/api/transactions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            projectId: lossData.projectId,
+            type: "EXPENSE",
+            amount: parseFloat(lossData.amount),
+            transactionDate: new Date().toISOString(),
+            description: lossData.description,
+            category: "Prejuízo/Custo Extra"
+          })
+        });
+        if (!res.ok) throw new Error("Erro ao salvar prejuízo");
+        createdTx = await res.json();
+      }
+      
+      setProjects((prev) => prev.map((p) => {
+        if (p.id === lossData.projectId) {
+          const updatedTxs = editingLossId 
+            ? p.transactions.map(t => t.id === editingLossId ? createdTx : t)
+            : [createdTx, ...(p.transactions || [])];
+          return { ...p, transactions: updatedTxs };
+        }
+        return p;
+      }));
+
+      // Seleciona o projeto novamente para atualizar as transacoes que estao ativas no modal
+      setSelectedProject((prev) => {
+         if(prev && prev.id === lossData.projectId) {
+            const updatedTxs = editingLossId 
+              ? prev.transactions.map(t => t.id === editingLossId ? createdTx : t)
+              : [createdTx, ...(prev.transactions || [])];
+            return { ...prev, transactions: updatedTxs };
+         }
+         return prev;
+      });
+
+      showToast(editingLossId ? "Prejuízo atualizado!" : "Prejuízo registrado com sucesso no painel financeiro!");
+      setLossData({ ...lossData, amount: "", description: "" });
+      setEditingLossId(null);
+      setShowLossModal(false);
+    } catch (e) {
+      showToast(e.message, "error");
+    } finally {
+      setSavingLoss(false);
+    }
+  };
+
+  const handleDeleteLoss = async (txId) => {
+    if (!confirm("Tem certeza que quer deletar este prejuízo/despesa? O dashboard será recalculado.")) return;
+    try {
+      await fetch(`/api/transactions/${txId}`, { method: "DELETE" });
+      
+      setProjects((prev) => prev.map((p) => {
+        if (p.id === selectedProject?.id) {
+          return { ...p, transactions: p.transactions.filter(t => t.id !== txId) };
+        }
+        return p;
+      }));
+
+      setSelectedProject((prev) => {
+         if (prev && prev.id === selectedProject?.id) {
+            return { ...prev, transactions: prev.transactions.filter(t => t.id !== txId) };
+         }
+         return prev;
+      });
+      
+      showToast("Prejuízo deletado com sucesso!");
+    } catch {
+      showToast("Erro ao deletar", "error");
+    }
   };
 
   const handleDelete = async (id) => {
@@ -219,9 +335,13 @@ export default function ProjetosPage() {
 
       const updateData = await res.json();
       
+      let allCompleted = false;
+      const targetProject = projects.find(p => p.id === justifyData.phase.projectId);
+
       setProjects((prev) => prev.map((p) => {
         if (p.id === justifyData.phase.projectId) {
           const updatedPhases = p.phases.map((ph) => ph.id === justifyData.phase.id ? { ...ph, ...updateData } : ph);
+          allCompleted = updatedPhases.every((ph) => ph.status === "COMPLETED");
           return { ...p, phases: updatedPhases };
         }
         return p;
@@ -230,6 +350,15 @@ export default function ProjetosPage() {
       showToast("Etapa concluída e arquivos registrados!");
       setShowJustifyModal(false);
       setJustifyData(null);
+
+      if (allCompleted && isAdmin && targetProject) {
+        setTimeout(() => {
+          if (confirm("Projeto 100% concluído! Ocorreu algum prejuízo/custo extra durante a execução que deseja registrar no financeiro?")) {
+            openLossModal(targetProject);
+          }
+        }, 300);
+      }
+
     } catch (err) {
       showToast(err.message, "error");
     } finally {
@@ -249,12 +378,26 @@ export default function ProjetosPage() {
         }),
       });
 
-      setProjects((prev) => prev.map((p) => p.id === project.id
-        ? { ...p, phases: p.phases.map((ph) => ph.id === phase.id ? { ...ph, status: newStatus, justification: reason } : ph) }
-        : p
-      ));
+      let allCompleted = false;
+      setProjects((prev) => prev.map((p) => {
+        if (p.id === project.id) {
+          const updatedPhases = p.phases.map((ph) => ph.id === phase.id ? { ...ph, status: newStatus, justification: reason } : ph);
+          allCompleted = updatedPhases.every((ph) => ph.status === "COMPLETED");
+          return { ...p, phases: updatedPhases };
+        }
+        return p;
+      }));
 
       if (reason) showToast("Etapa concluída com justificativa!");
+
+      if (allCompleted && isAdmin) {
+        setTimeout(() => {
+          if (confirm("Projeto 100% concluído! Ocorreu algum prejuízo/custo extra durante a execução que deseja registrar no financeiro?")) {
+            openLossModal(project);
+          }
+        }, 300);
+      }
+
     } catch {
       showToast("Erro ao atualizar status", "error");
     }
@@ -324,7 +467,10 @@ export default function ProjetosPage() {
                 </div>
                 {isAdmin && (
                   <div className={styles.cardActions}>
-                    <button className={styles.iconBtn} onClick={() => openEdit(project)} title="Editar">
+                    <button className={styles.iconBtn} onClick={() => openLossModal(project)} title="Registrar Prejuízo/Despesa">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    </button>
+                    <button className={styles.iconBtn} onClick={() => openEdit(project)} title="Editar Projeto">
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </button>
                     <button className={`${styles.iconBtn} ${styles.iconBtnDanger}`} onClick={() => handleDelete(project.id)} title="Deletar">
@@ -538,6 +684,76 @@ export default function ProjetosPage() {
               <button className={styles.btnPrimary} onClick={handleCompletePhaseWithReason} disabled={savingPhase || !justification.trim()}>
                 {savingPhase ? "Enviando e Salvando..." : "Confirmar Conclusão"}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showLossModal && (
+        <div className={styles.overlay} onClick={() => setShowLossModal(false)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>Prejuízos / Custos Extras</h2>
+              <button className={styles.closeBtn} onClick={() => setShowLossModal(false)}>✕</button>
+            </div>
+            <div className={styles.modalBody}>
+              <div className={styles.infoBox} style={{ background: "rgba(239, 68, 68, 0.1)", color: "#FCA5A5" }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <span>Adicione aqui gastos que saíram do próprio bolso ou prejuízos para o projeto <strong>{lossData.projectName}</strong>. Ao salvar, os valores serão computados e deduzidos automaticamente do Lucro e Faturamentos mensais.</span>
+              </div>
+              
+              <div className={styles.row}>
+                <div className={styles.field} style={{ flex: 1.5 }}>
+                  <label>Descrição do Prejuízo *</label>
+                  <input id="loss-desc-input" value={lossData.description} onChange={(e) => setLossData({ ...lossData, description: e.target.value })} placeholder="Ex: Vidro quebrado por funcionário" className={styles.input} />
+                </div>
+                <div className={styles.field} style={{ flex: 1 }}>
+                  <label>Valor (R$) *</label>
+                  <input type="number" value={lossData.amount} onChange={(e) => setLossData({ ...lossData, amount: e.target.value })} placeholder="0,00" className={styles.input} />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px', marginBottom: '16px', gap: '8px' }}>
+                 {editingLossId && (
+                   <button className={styles.btnSecondary} onClick={() => { setEditingLossId(null); setLossData({ ...lossData, amount: "", description: "" }); }} disabled={savingLoss}>
+                     Cancelar Edição
+                   </button>
+                 )}
+                 <button className={styles.btnPrimary} style={{ background: "#DC2626", borderColor: "#DC2626" }} onClick={handleSaveLoss} disabled={savingLoss}>
+                   {savingLoss ? "Adicionando..." : (editingLossId ? "Salvar Alteração" : "Adicionar Prejuízo")}
+                 </button>
+              </div>
+
+              {selectedProject && selectedProject.transactions && selectedProject.transactions.length > 0 && (
+                <div style={{ marginTop: '16px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '16px' }}>
+                  <h4 style={{ color: '#FFF', fontSize: '0.95rem', marginBottom: '12px' }}>Histórico de Prejuízos deste Projeto</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
+                    {selectedProject.transactions.map((tx) => (
+                      <div key={tx.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', borderLeft: '4px solid #DC2626' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                           <span style={{ color: '#FFF', fontWeight: 500, fontSize: '0.9rem' }}>{tx.description}</span>
+                           <span style={{ color: 'var(--carbon-400)', fontSize: '0.75rem' }}>{new Date(tx.transactionDate).toLocaleDateString("pt-BR")}</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <span style={{ color: '#FCA5A5', fontWeight: 600 }}>R$ {Number(tx.amount).toLocaleString('pt-BR')}</span>
+                          <div style={{ display: 'flex', gap: '8px', opacity: 0.8 }}>
+                            <button onClick={() => { 
+                              setEditingLossId(tx.id); 
+                              setLossData({ ...lossData, amount: String(tx.amount), description: tx.description });
+                              document.getElementById("loss-desc-input")?.focus();
+                            }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#60A5FA', padding: 0 }} title="Editar Prejuízo">
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            </button>
+                            <button onClick={() => handleDeleteLoss(tx.id)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#DC2626', padding: 0 }} title="Excluir">
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

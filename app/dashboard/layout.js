@@ -140,6 +140,11 @@ export default function DashboardLayout({ children }) {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => {
+                if (typeof window !== "undefined" && window.innerWidth <= 768) {
+                  setSidebarOpen(false);
+                }
+              }}
               className={`${styles.navItem} ${
                 pathname === item.href ? styles.navActive : ""
               }`}
@@ -178,6 +183,32 @@ export default function DashboardLayout({ children }) {
 
       {/* Main Content */}
       <main className={styles.main}>
+        <div className={styles.mobileHeader}>
+          <div className={styles.brand}>
+            <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
+              <rect width="40" height="40" rx="10" fill="url(#mh-grad)" />
+              <path d="M12 28V16L20 10L28 16V28H22V22H18V28H12Z" fill="white" fillOpacity="0.95" />
+              <defs>
+                <linearGradient id="mh-grad" x1="0" y1="0" x2="40" y2="40">
+                  <stop stopColor="#059669" />
+                  <stop offset="1" stopColor="#10B981" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <span className={styles.brandText}>Tia Mai</span>
+          </div>
+          <button 
+            className={styles.mobileHamburger}
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Abrir menu"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+        </div>
         {children}
       </main>
     </div>

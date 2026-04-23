@@ -33,6 +33,10 @@ export async function GET(request) {
       include: {
         client: { select: { id: true, name: true } },
         phases: { orderBy: { order: "asc" } },
+        transactions: {
+          where: { type: "EXPENSE" },
+          orderBy: { transactionDate: "desc" }
+        },
         _count: { select: { documents: true, transactions: true } },
       },
     });
