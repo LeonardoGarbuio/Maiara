@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { PHASE_TEMPLATES } from "@/lib/phase-templates";
+import { cacheGetOrFetch, cacheInvalidatePrefix } from "@/lib/cache";
 
 export const dynamic = "force-dynamic";
 
@@ -15,31 +16,37 @@ export async function GET(request) {
     const userId = request.headers.get("x-user-id");
     const role = request.headers.get("x-user-role");
 
-    const where = {};
-    if (status) where.status = status;
-    if (type) where.type = type;
+    // Chave de cache única por combinação de filtros + usuário
+    const cacheKey = `projects:list:${role}:${userId || "all"}:${status || "all"}:${type || "all"}`;
 
-    // Se for estagiário, só vê projetos atribuídos a ele ou não atribuídos a ninguém
-    if (role === "TEAM" && userId) {
-      where.OR = [
-        { assignedTo: userId },
-        { assignedTo: null }
-      ];
-    }
+    const projects = await cacheGetOrFetch(cacheKey, async () => {
+      const where = {};
+      if (status) where.status = status;
+      if (type) where.type = type;
 
-    const projects = await prisma.project.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      include: {
-        client: { select: { id: true, name: true } },
-        phases: { orderBy: { order: "asc" } },
-        transactions: {
-          where: { type: "EXPENSE" },
-          orderBy: { transactionDate: "desc" }
+      // Se for estagiário, só vê projetos atribuídos a ele ou não atribuídos a ninguém
+      if (role === "TEAM" && userId) {
+        where.OR = [
+          { assignedTo: userId },
+          { assignedTo: null }
+        ];
+      }
+
+      return await prisma.project.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        include: {
+          client: { select: { id: true, name: true } },
+          phases: { orderBy: { order: "asc" } },
+          transactions: {
+            where: { type: "EXPENSE" },
+            orderBy: { transactionDate: "desc" }
+          },
+          _count: { select: { documents: true, transactions: true } },
         },
-        _count: { select: { documents: true, transactions: true } },
-      },
-    });
+      });
+    }, 15_000); // 15s TTL
+
     return NextResponse.json(projects);
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -59,6 +66,7 @@ export async function POST(request) {
         data: { name: body.newClientName },
       });
       finalClientId = newClient.id;
+      cacheInvalidatePrefix("clients");
     }
 
     // Cria o projeto
@@ -69,10 +77,10 @@ export async function POST(request) {
         type: body.type,
         status: body.status || "PROSPECT",
         deadline: body.deadline ? new Date(body.deadline) : null,
-        totalValue: body.totalValue || null,
+        totalValue: body.totalValue && !isNaN(body.totalValue) ? Number(body.totalValue) : null,
         paymentType: body.paymentType || "CASH_UPFRONT",
-        installments: body.installments || 1,
-        upfrontValue: body.upfrontValue || null,
+        installments: body.installments ? Number(body.installments) : 1,
+        upfrontValue: body.upfrontValue && !isNaN(body.upfrontValue) ? Number(body.upfrontValue) : null,
         notes: body.notes || null,
         assignedTo: body.assignedTo || null,
       },
@@ -99,6 +107,9 @@ export async function POST(request) {
         phases: { orderBy: { order: "asc" } },
       },
     });
+
+    // Invalida o cache de projetos para que a próxima listagem seja fresca
+    cacheInvalidatePrefix("projects");
 
     return NextResponse.json(fullProject, { status: 201 });
   } catch (error) {

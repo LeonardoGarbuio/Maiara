@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import styles from "./projetos.module.css";
 import { PHASE_TEMPLATES } from "@/lib/phase-templates";
+import DriveExplorer from "@/app/components/DriveExplorer";
 
 const STATUS_MAP = {
   PROSPECT: { label: "Prospecção", color: "#60A5FA" },
@@ -39,6 +40,22 @@ export default function ProjetosPage() {
   const [lossData, setLossData] = useState({ projectId: "", projectName: "", amount: "", description: "" });
   const [savingLoss, setSavingLoss] = useState(false);
   const [editingLossId, setEditingLossId] = useState(null);
+
+  // Drive Modal State
+  const [driveProjectId, setDriveProjectId] = useState(null);
+
+  // Custom Confirm Modal
+  const [confirmDialog, setConfirmDialog] = useState(null);
+  const customConfirm = (message, onConfirmEvent) => {
+    setConfirmDialog({
+      message,
+      onConfirm: () => {
+        setConfirmDialog(null);
+        onConfirmEvent();
+      },
+      onCancel: () => setConfirmDialog(null)
+    });
+  };
 
   useEffect(() => {
     const stored = localStorage.getItem("tiamai_user");
@@ -139,13 +156,16 @@ export default function ProjetosPage() {
           
           if (isAdmin && form.status === "FINISHED" && selectedProject.status !== "FINISHED") {
             setTimeout(() => {
-              if (confirm("Você alterou o status deste projeto para Concluído! Ocorreu algum prejuízo/custo extra durante a execução que deseja registrar no financeiro?")) {
+              customConfirm("Você alterou o status deste projeto para Concluído! Ocorreu algum prejuízo/custo extra durante a execução que deseja registrar no financeiro?", () => {
                  openLossModal(updated);
-              }
+              });
             }, 300);
           }
+          showToast("Projeto atualizado!");
+        } else {
+          const eUrl = await res.json();
+          throw new Error(eUrl.error || "Falha ao salvar projeto.");
         }
-        showToast("Projeto atualizado!");
       } else {
         const res = await fetch("/api/projects", {
           method: "POST",
@@ -155,11 +175,14 @@ export default function ProjetosPage() {
         if (res.ok) {
           const created = await res.json();
           setProjects((prev) => [created, ...prev]);
+          showToast("Projeto criado com as etapas!");
+        } else {
+          const eUrl = await res.json();
+          throw new Error(eUrl.error || "Falha ao criar projeto.");
         }
-        showToast("Projeto criado com as etapas!");
       }
-    } catch {
-      showToast("Erro ao salvar", "error");
+    } catch (error) {
+      showToast(error.message || "Erro ao salvar o projeto no servidor", "error");
     }
     setSaving(false);
     setShowModal(false);
@@ -236,59 +259,81 @@ export default function ProjetosPage() {
   };
 
   const handleDeleteLoss = async (txId) => {
-    if (!confirm("Tem certeza que quer deletar este prejuízo/despesa? O dashboard será recalculado.")) return;
-    try {
-      await fetch(`/api/transactions/${txId}`, { method: "DELETE" });
-      
-      setProjects((prev) => prev.map((p) => {
-        if (p.id === selectedProject?.id) {
-          return { ...p, transactions: p.transactions.filter(t => t.id !== txId) };
-        }
-        return p;
-      }));
+    customConfirm("Tem certeza que quer deletar este prejuízo/despesa? O dashboard será recalculado.", async () => {
+      try {
+        await fetch(`/api/transactions/${txId}`, { method: "DELETE" });
+        
+        setProjects((prev) => prev.map((p) => {
+          if (p.id === selectedProject?.id) {
+            return { ...p, transactions: p.transactions.filter(t => t.id !== txId) };
+          }
+          return p;
+        }));
 
-      setSelectedProject((prev) => {
-         if (prev && prev.id === selectedProject?.id) {
-            return { ...prev, transactions: prev.transactions.filter(t => t.id !== txId) };
-         }
-         return prev;
-      });
-      
-      showToast("Prejuízo deletado com sucesso!");
-    } catch {
-      showToast("Erro ao deletar", "error");
-    }
+        setSelectedProject((prev) => {
+           if (prev && prev.id === selectedProject?.id) {
+              return { ...prev, transactions: prev.transactions.filter(t => t.id !== txId) };
+           }
+           return prev;
+        });
+        
+        showToast("Prejuízo deletado com sucesso!");
+      } catch {
+        showToast("Erro ao deletar", "error");
+      }
+    });
   };
 
   const handleDelete = async (id) => {
-    if (!confirm("Tem certeza que quer deletar este projeto?")) return;
-    try {
-      await fetch(`/api/projects/${id}`, { method: "DELETE" });
-      setProjects((prev) => prev.filter((p) => p.id !== id));
-      showToast("Projeto deletado");
-    } catch {
-      showToast("Erro ao deletar", "error");
-    }
+    customConfirm("Tem certeza que quer deletar este projeto?", async () => {
+      try {
+        await fetch(`/api/projects/${id}`, { method: "DELETE" });
+        setProjects((prev) => prev.filter((p) => p.id !== id));
+        showToast("Projeto deletado");
+      } catch {
+        showToast("Erro ao deletar", "error");
+      }
+    });
   };
 
   const handlePhaseToggle = async (project, phase) => {
     const isIntern = user?.role === "TEAM";
-    const newStatus = phase.status === "COMPLETED" ? "IN_PROGRESS" : "COMPLETED";
-    const markingComplete = newStatus === "COMPLETED";
 
-    if (isIntern && markingComplete) {
-      openJustifyModal(phase, newStatus);
+    // 1. Se já está concluído (Verde)
+    if (phase.status === "COMPLETED") {
+      if (isIntern) {
+        showToast("Essa etapa já foi concluída e fechada permanentemente.", "error");
+        return;
+      } else {
+        customConfirm("Admin: Deseja reabrir esta fase (voltará para progresso)?", async () => {
+          await performPhaseToggle(project, phase, "IN_PROGRESS");
+        });
+        return;
+      }
+    }
+
+    // 2. Se está pendente (Cinza) e o usuário clica a primeira vez -> Vai para Amarelo (Em Progresso)
+    if (!phase.status || phase.status === "PENDING") {
+      await performPhaseToggle(project, phase, "IN_PROGRESS");
       return;
     }
 
-    await performPhaseToggle(project, phase, newStatus);
+    // 3. Se já está Em Progresso (Amarelo) e o usuário clica novamente para aprovar
+    if (phase.status === "IN_PROGRESS") {
+      customConfirm("Certeza absoluta que deseja marcar esta etapa como CONCLUÍDA? A pasta final relacionada a ela no Drive será bloqueada.", async () => {
+        if (isIntern) {
+          openJustifyModal(phase, "COMPLETED");
+        } else {
+          await performPhaseToggle(project, phase, "COMPLETED");
+        }
+      });
+      return;
+    }
   };
 
   const openJustifyModal = (phase, status) => {
     setJustifyData({ phase, status });
     setJustification("");
-    setDocType("PLAN");
-    setSelectedFile(null);
     setShowJustifyModal(true);
   };
 
@@ -296,34 +341,13 @@ export default function ProjetosPage() {
     if (!justification.trim()) return showToast("A justificativa é obrigatória", "error");
     
     setSavingPhase(true);
-    let finalFileUrl = null;
 
     try {
-      if (selectedFile) {
-        const formData = new FormData();
-        formData.append("file", selectedFile);
-        formData.append("projectId", justifyData.phase.projectId);
-        formData.append("docType", docType);
-        
-        const uploadRes = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-        
-        const uploadData = await uploadRes.json();
-        if (!uploadRes.ok) throw new Error(uploadData.error || "Erro no upload");
-        finalFileUrl = uploadData.url;
-      }
-
       const bodyPayload = {
         status: justifyData.status,
         justification: justification,
         userId: user?.id
       };
-
-      if (finalFileUrl) {
-         bodyPayload.justification += `\n\n[Arquivo Anexado]: ${finalFileUrl}`;
-      }
 
       const res = await fetch(`/api/phases/${justifyData.phase.id}`, {
         method: "PUT",
@@ -353,9 +377,9 @@ export default function ProjetosPage() {
 
       if (allCompleted && isAdmin && targetProject) {
         setTimeout(() => {
-          if (confirm("Projeto 100% concluído! Ocorreu algum prejuízo/custo extra durante a execução que deseja registrar no financeiro?")) {
+          customConfirm("Projeto 100% concluído! Ocorreu algum prejuízo/custo extra durante a execução que deseja registrar no financeiro?", () => {
             openLossModal(targetProject);
-          }
+          });
         }, 300);
       }
 
@@ -392,9 +416,9 @@ export default function ProjetosPage() {
 
       if (allCompleted && isAdmin) {
         setTimeout(() => {
-          if (confirm("Projeto 100% concluído! Ocorreu algum prejuízo/custo extra durante a execução que deseja registrar no financeiro?")) {
+          customConfirm("Projeto 100% concluído! Ocorreu algum prejuízo/custo extra durante a execução que deseja registrar no financeiro?", () => {
             openLossModal(project);
-          }
+          });
         }, 300);
       }
 
@@ -465,8 +489,11 @@ export default function ProjetosPage() {
                   <h3 className={styles.projectName}>{project.name}</h3>
                   <span className={styles.clientName}>{clientName}</span>
                 </div>
-                {isAdmin && (
-                  <div className={styles.cardActions}>
+                <div className={styles.cardActions}>
+                    <button className={styles.iconBtn} onClick={() => setDriveProjectId(project.id)} title="Pastas / Drive do Projeto">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    </button>
+                    {isAdmin && (<>
                     <button className={styles.iconBtn} onClick={() => openLossModal(project)} title="Registrar Prejuízo/Despesa">
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                     </button>
@@ -476,8 +503,8 @@ export default function ProjetosPage() {
                     <button className={`${styles.iconBtn} ${styles.iconBtnDanger}`} onClick={() => handleDelete(project.id)} title="Deletar">
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
                     </button>
+                    </>)}
                   </div>
-                )}
               </div>
 
               <div className={styles.cardMeta}>
@@ -636,47 +663,18 @@ export default function ProjetosPage() {
             <div className={styles.modalBody}>
               <div className={styles.infoBox}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                <span>Você está marcando a etapa <strong>"{justifyData?.phase?.name}"</strong> como concluída. Por favor, descreva o que foi feito ou anexe observações importantes.</span>
+                <span>Você está marcando a etapa <strong>"{justifyData?.phase?.name}"</strong> como concluída. Como os arquivos já foram colocados no Drive, comente um resumo ou alguma observação importante.</span>
               </div>
               <div className={styles.field}>
                 <label>O que foi realizado nesta etapa? *</label>
                 <textarea 
                   value={justification} 
                   onChange={(e) => setJustification(e.target.value)} 
-                  placeholder="Ex: Todos os desenhos técnicos foram conferidos e enviados para plotagem..." 
+                  placeholder="Ex: Todos os desenhos técnicos foram conferidos e enviados ao Drive na respectiva pasta..." 
                   className={`${styles.input} ${styles.textarea}`} 
                   rows={4} 
                   autoFocus
                 />
-              </div>
-
-              <div className={styles.row}>
-                <div className={styles.field} style={{ flex: 1 }}>
-                  <label>Tipo de Arquivo</label>
-                  <select value={docType} onChange={(e) => setDocType(e.target.value)} className={styles.input}>
-                    <option value="PLAN">Arquipélago/Planta (DWG, SKP, PDF)</option>
-                    <option value="PHOTO">Imagem/Render (JPG, PNG)</option>
-                    <option value="CONTRACT">Contrato/Proposta (PDF, DOCX)</option>
-                    <option value="OTHER">Outros (.ZIP, etc)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className={styles.field}>
-                <label>Anexo (Opcional)</label>
-                <input 
-                  type="file" 
-                  className={styles.input}
-                  style={{ padding: '8px' }}
-                  onChange={(e) => setSelectedFile(e.target.files[0] || null)}
-                  accept={
-                    docType === 'PLAN' ? ".pdf,.dwg,.skp,.rvt" : 
-                    docType === 'PHOTO' ? "image/*" : 
-                    docType === 'CONTRACT' ? ".pdf,.doc,.docx" : 
-                    "*"
-                  }
-                />
-                <span className={styles.hint}>Tamanho máximo: 100MB por arquivo.</span>
               </div>
             </div>
             <div className={styles.modalFooter}>
@@ -754,6 +752,39 @@ export default function ProjetosPage() {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {driveProjectId && (
+        <div className={styles.overlay} onClick={() => setDriveProjectId(null)}>
+          <div
+            className={styles.modal}
+            onClick={(e) => e.stopPropagation()}
+            style={{ width: '95vw', maxWidth: '1100px', height: '85vh', padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
+          >
+            <DriveExplorer projectId={driveProjectId} userRole={user?.role} onClose={() => setDriveProjectId(null)} />
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE CONFIRMAÇÃO CUSTOMIZADO */}
+      {confirmDialog && (
+        <div className={styles.overlay} style={{ zIndex: 99999 }}>
+          <div className={styles.modal} style={{ maxWidth: '400px', padding: '24px', animation: 'scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+            <div className={styles.modalHeader} style={{ marginBottom: '16px' }}>
+              <h2 style={{ color: '#F87171', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Atenção
+              </h2>
+            </div>
+            <div className={styles.modalBody} style={{ fontSize: '1rem', lineHeight: '1.5', color: '#e2e8f0', marginBottom: '24px' }}>
+              {confirmDialog.message}
+            </div>
+            <div className={styles.modalFooter} style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+               <button className={styles.btnSecondary} onClick={confirmDialog.onCancel}>{confirmDialog.cancelText || "Cancelar"}</button>
+               <button className={styles.btnPrimary} style={{ background: '#EF4444', borderColor: '#EF4444' }} onClick={confirmDialog.onConfirm}>{confirmDialog.confirmText || "Confirmar"}</button>
             </div>
           </div>
         </div>

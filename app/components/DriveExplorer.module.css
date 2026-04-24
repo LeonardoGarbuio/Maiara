@@ -1,0 +1,455 @@
+/* ==========================================
+   DRIVE EXPLORER - Windows Desktop Style
+   ========================================== */
+
+.driveContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--carbon-900);
+  color: var(--carbon-100);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* ---- Header ---- */
+.driveHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: var(--carbon-800);
+}
+
+.driveTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.driveTitle svg { color: var(--emerald-400); }
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.readOnlyBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  background: rgba(245,158,11,0.12);
+  border: 1px solid rgba(245,158,11,0.25);
+  border-radius: 100px;
+  color: #FBBF24;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: rgba(239,68,68,0.06);
+  border: 1px solid rgba(239,68,68,0.15);
+  border-radius: var(--radius-md);
+  color: #F87171;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.closeBtn:hover {
+  background: rgba(239,68,68,0.15);
+  border-color: rgba(239,68,68,0.35);
+}
+
+/* ---- Toolbar ---- */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  background: var(--carbon-800);
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.82rem;
+  color: var(--carbon-400);
+  overflow-x: auto;
+  flex: 1;
+  min-width: 0;
+  scrollbar-width: none;
+}
+
+.breadcrumbs::-webkit-scrollbar { display: none; }
+
+.crumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: var(--carbon-400);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+
+.crumb:hover { color: var(--emerald-400); background: rgba(16,185,129,0.08); }
+.crumbActive { color: #fff !important; font-weight: 600; }
+.crumbSep { color: var(--carbon-600); font-size: 0.8rem; flex-shrink: 0; }
+
+.toolbarActions { display: flex; gap: 8px; flex-shrink: 0; }
+
+.btnNewFolder {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.2);
+  border-radius: var(--radius-md);
+  color: var(--emerald-400);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnNewFolder:hover {
+  background: rgba(16,185,129,0.15);
+  border-color: rgba(16,185,129,0.35);
+}
+
+.btnUpload {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: linear-gradient(135deg, var(--emerald-600), var(--emerald-500));
+  border: none;
+  border-radius: var(--radius-md);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.btnUpload:hover { box-shadow: var(--shadow-glow); transform: translateY(-1px); }
+
+/* ---- Desktop Area (Windows Style) ---- */
+.desktopArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  background: var(--carbon-900);
+  position: relative;
+}
+
+.desktopGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-content: flex-start;
+}
+
+/* ---- Folder (Windows-style: no card, pure icon) ---- */
+.folderItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 90px;
+  padding: 10px 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.12s;
+  user-select: none;
+}
+
+.folderItem:hover { background: rgba(255,255,255,0.04); }
+.folderItem.selected { background: rgba(16,185,129,0.1); }
+
+.folderItem.dragOver {
+  background: rgba(16,185,129,0.15);
+  outline: 2px dashed var(--emerald-400);
+  outline-offset: -2px;
+  border-radius: 8px;
+}
+
+.folderItem.dragging {
+  opacity: 0.4;
+}
+
+.folderIcon {
+  font-size: 2.8rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+  pointer-events: none;
+  transition: transform 0.15s;
+}
+
+.folderItem:hover .folderIcon { transform: scale(1.05); }
+
+.itemLabel {
+  margin-top: 4px;
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--carbon-200);
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+
+/* ---- Document (Windows-style) ---- */
+.docItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 90px;
+  padding: 10px 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.12s;
+  user-select: none;
+}
+
+.docItem:hover { background: rgba(255,255,255,0.04); }
+.docItem.dragging { opacity: 0.4; }
+
+.docIcon {
+  font-size: 2.4rem;
+  line-height: 1;
+  pointer-events: none;
+  transition: transform 0.15s;
+}
+
+.docItem:hover .docIcon { transform: scale(1.05); }
+
+.docStatusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.dotApproved { background: var(--emerald-400); box-shadow: 0 0 6px var(--emerald-400); }
+.dotPending { background: var(--carbon-500); }
+.dotWaiting { background: #FBBF24; box-shadow: 0 0 6px rgba(251,191,36,0.4); }
+.dotAlteration { background: #F87171; box-shadow: 0 0 6px rgba(248,113,113,0.4); }
+
+/* ---- Hover Actions (appear on hover) ---- */
+.itemActions {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.12s;
+  z-index: 5;
+}
+
+.folderItem:hover .itemActions,
+.docItem:hover .itemActions {
+  opacity: 1;
+}
+
+.actionBtn {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--carbon-800);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 5px;
+  cursor: pointer;
+  color: var(--carbon-300);
+  transition: all 0.12s;
+}
+
+.actionBtn:hover { background: var(--carbon-600); color: #fff; }
+.actionBtnDanger:hover { background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.35); color: #F87171; }
+
+.downloadBtn:hover { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.3); color: #60A5FA; }
+
+/* ---- Rename Input ---- */
+.renameInput {
+  width: 100%;
+  padding: 2px 4px;
+  background: var(--carbon-700);
+  border: 1px solid var(--emerald-500);
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #fff;
+  text-align: center;
+  font-family: inherit;
+  margin-top: 4px;
+}
+
+.renameInput:focus { outline: none; }
+
+/* ---- Loading & Empty ---- */
+.loadingState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--carbon-400);
+  font-size: 0.88rem;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 80px 20px;
+  color: var(--carbon-500);
+  text-align: center;
+}
+
+.emptyIcon { font-size: 3rem; margin-bottom: 12px; opacity: 0.4; }
+.emptyText { font-size: 0.85rem; font-weight: 500; }
+
+/* ---- Internal Modal ---- */
+.internalOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  padding: 20px;
+}
+
+.internalModal {
+  background: var(--carbon-800);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 400px;
+  animation: fadeIn 0.2s ease-out;
+  overflow: hidden;
+}
+
+.internalModalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.internalModalHeader h3 { font-size: 1rem; font-weight: 700; color: #fff; }
+
+.internalModalBody {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.internalModalFooter {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 16px 22px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.fieldLabel { font-size: 0.8rem; font-weight: 600; color: var(--carbon-200); margin-bottom: 6px; display: block; }
+
+.fieldInput {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--carbon-700);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-md);
+  color: #fff;
+  font-size: 0.88rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.fieldInput:focus { outline: none; border-color: var(--emerald-500); }
+
+.fieldTextarea { composes: fieldInput; resize: none; min-height: 80px; }
+
+.btnCancel {
+  padding: 9px 18px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-md);
+  color: var(--carbon-300);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnCancel:hover { border-color: rgba(255,255,255,0.2); color: #fff; }
+
+.btnSubmit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  background: linear-gradient(135deg, var(--emerald-600), var(--emerald-500));
+  border: none;
+  border-radius: var(--radius-md);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.btnSubmit:hover { box-shadow: var(--shadow-glow); transform: translateY(-1px); }
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  .driveHeader { padding: 14px 16px; }
+  .toolbar { flex-direction: column; gap: 10px; padding: 10px 16px; }
+  .toolbarActions { width: 100%; justify-content: flex-end; }
+  .desktopArea { padding: 16px; }
+  .folderItem, .docItem { width: 75px; }
+  .folderIcon { font-size: 2.2rem; }
+  .docIcon { font-size: 1.8rem; }
+  .itemLabel { font-size: 0.62rem; }
+}
