@@ -1,0 +1,162 @@
+.page {
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.header {
+  margin-bottom: 2.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--gold-400);
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--sage-300);
+}
+
+.printBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--sage-200);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.printBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--gold-400);
+  border-color: var(--gold-500);
+}
+
+.section {
+  background: rgba(51, 58, 50, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--gold-500);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 0.75rem;
+}
+
+.text {
+  font-size: 0.95rem;
+  color: var(--sage-100);
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+.list {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--sage-200);
+}
+
+.list li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.alert {
+  background: rgba(245, 158, 11, 0.12);
+  border-left: 4px solid var(--status-warning);
+  padding: 1rem;
+  border-radius: var(--radius-sm);
+  margin: 1.5rem 0;
+}
+
+.alertTitle {
+  font-weight: 700;
+  color: var(--status-warning);
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.alertText {
+  font-size: 0.9rem;
+  color: var(--sage-100);
+  margin-top: 0.5rem;
+}
+
+/* Specific Alert colors */
+.alertInfo {
+  background: rgba(96, 165, 250, 0.12);
+  border-left: 4px solid var(--status-info);
+}
+.alertInfo .alertTitle { color: var(--status-info); }
+
+/* Print Styles */
+@media print {
+  .page {
+    padding: 0;
+    max-width: 100%;
+    background: transparent;
+  }
+  .header {
+    margin-bottom: 1rem;
+  }
+  .printBtn {
+    display: none;
+  }
+  .section {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0;
+    margin-bottom: 2rem;
+    break-inside: avoid;
+  }
+  .title {
+    color: #000 !important;
+  }
+  .sectionTitle {
+    color: #333 !important;
+    border-bottom: 1px solid #ddd !important;
+  }
+  .text, .list, .alertText, .subtitle {
+    color: #444 !important;
+  }
+  .alert {
+    border: 1px solid #ddd;
+    background: transparent !important;
+    border-left: 4px solid #888 !important;
+  }
+  .alertTitle {
+    color: #000 !important;
+  }
+  
+  /* Hide dashboard sidebar globally when printing */
+  :global(aside), :global(nav), :global(.mobileHeader) {
+    display: none !important;
+  }
+}

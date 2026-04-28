@@ -9,8 +9,8 @@ export const dynamic = "force-dynamic";
 // GET /api/users - Lista todos os usuários
 export async function GET(request) {
   try {
-    // 🔒 ADMIN ONLY
-    const auth = await requireAuth(request, "ADMIN");
+    // 🔒 ADMIN e LEAD_ARCHITECT
+    const auth = await requireAuth(request, ["ADMIN", "LEAD_ARCHITECT"]);
     if (auth.error) return auth.error;
 
     const users = await cacheGetOrFetch("users:list", async () => {
@@ -38,8 +38,8 @@ export async function GET(request) {
 // POST /api/users - Cria novo usuário (Admin cria estagiários/admins)
 export async function POST(request) {
   try {
-    // 🔒 ADMIN ONLY
-    const auth = await requireAuth(request, "ADMIN");
+    // 🔒 ADMIN e LEAD_ARCHITECT
+    const auth = await requireAuth(request, ["ADMIN", "LEAD_ARCHITECT"]);
     if (auth.error) return auth.error;
 
     const body = await request.json();

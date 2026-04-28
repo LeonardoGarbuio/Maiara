@@ -5,8 +5,8 @@ import { requireAuth } from "@/lib/api-auth";
 // DELETE /api/transactions/[id]
 export async function DELETE(request, { params }) {
   try {
-    // 🔒 ADMIN ONLY
-    const auth = await requireAuth(request, "ADMIN");
+    // 🔒 ADMIN e LEAD_ARCHITECT
+    const auth = await requireAuth(request, ["ADMIN", "LEAD_ARCHITECT"]);
     if (auth.error) return auth.error;
 
     const { id } = await params;

@@ -75,6 +75,18 @@ const NAV_ITEMS = [
       </svg>
     ),
   },
+  {
+    label: "Ajuda / Manual",
+    href: "/dashboard/manual",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+        <line x1="12" y1="17" x2="12.01" y2="17" />
+      </svg>
+    ),
+    isBottom: true,
+  },
 ];
 
 export default function DashboardLayout({ children }) {
@@ -154,7 +166,7 @@ export default function DashboardLayout({ children }) {
               }}
               className={`${styles.navItem} ${
                 pathname === item.href ? styles.navActive : ""
-              }`}
+              } ${item.isBottom ? styles.navItemBottom : ""}`}
             >
               {item.icon}
               {sidebarOpen && <span>{item.label}</span>}

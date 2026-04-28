@@ -8,17 +8,17 @@
    ======================================== */
 
 :root {
-  /* Sage Green Palette — inspirado no fundo da logo */
-  --sage-950: #0F1A16;
-  --sage-900: #152119;
-  --sage-800: #1C2E25;
-  --sage-700: #243832;
-  --sage-600: #2E4A40;
-  --sage-500: #3A5C4F;
-  --sage-400: #5A7D6E;
-  --sage-300: #8BA99A;
-  --sage-200: #B5CCBF;
-  --sage-100: #DDE8E1;
+  /* Verde Musgo Exato (Conforme solicitado) */
+  --sage-950: #171C16;
+  --sage-900: #242923; /* Fundo principal */
+  --sage-800: #333A32; /* Cards e elementos */
+  --sage-700: #454F43;
+  --sage-600: #5A6658;
+  --sage-500: #71806E;
+  --sage-400: #8C9C89;
+  --sage-300: #A8B8A5;
+  --sage-200: #C7D4C4;
+  --sage-100: #E6EFE4;
 
   /* Gold Champagne — accent principal (da logo) */
   --gold-700: #9A7B24;
@@ -195,14 +195,14 @@ summary {
    ======================================== */
 
 .glass {
-  background: rgba(28, 46, 37, 0.7);
+  background: rgba(36, 41, 35, 0.7); /* Baseado em #242923 */
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .glass-card {
-  background: rgba(36, 56, 50, 0.6);
+  background: rgba(51, 58, 50, 0.6); /* Baseado em #333A32 */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.05);

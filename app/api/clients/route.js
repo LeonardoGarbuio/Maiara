@@ -29,8 +29,8 @@ export async function GET(request) {
 // POST /api/clients - Cria um novo cliente
 export async function POST(request) {
   try {
-    // 🔒 ADMIN ONLY
-    const auth = await requireAuth(request, "ADMIN");
+    // 🔒 ADMIN e LEAD_ARCHITECT
+    const auth = await requireAuth(request, ["ADMIN", "LEAD_ARCHITECT"]);
     if (auth.error) return auth.error;
 
     const body = await request.json();

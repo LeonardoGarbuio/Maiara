@@ -5,8 +5,8 @@ import { requireAuth } from "@/lib/api-auth";
 // DELETE /api/users/[id] - Deleta um usuário
 export async function DELETE(request, { params }) {
   try {
-    // 🔒 ADMIN ONLY
-    const auth = await requireAuth(request, "ADMIN");
+    // 🔒 ADMIN e LEAD_ARCHITECT
+    const auth = await requireAuth(request, ["ADMIN", "LEAD_ARCHITECT"]);
     if (auth.error) return auth.error;
 
     const { id } = await params;
@@ -20,8 +20,8 @@ export async function DELETE(request, { params }) {
 // PUT /api/users/[id] - Atualiza um usuário
 export async function PUT(request, { params }) {
   try {
-    // 🔒 ADMIN ONLY
-    const auth = await requireAuth(request, "ADMIN");
+    // 🔒 ADMIN e LEAD_ARCHITECT
+    const auth = await requireAuth(request, ["ADMIN", "LEAD_ARCHITECT"]);
     if (auth.error) return auth.error;
 
     const { id } = await params;

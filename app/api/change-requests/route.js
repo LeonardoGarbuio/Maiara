@@ -34,8 +34,8 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    // 🔒 ADMIN ONLY
-    const auth = await requireAuth(request, "ADMIN");
+    // 🔒 ADMIN e LEAD_ARCHITECT
+    const auth = await requireAuth(request, ["ADMIN", "LEAD_ARCHITECT"]);
     if (auth.error) return auth.error;
     const user = auth.user;
 

@@ -4,8 +4,8 @@ import { requireAuth } from "@/lib/api-auth";
 
 export async function GET(request) {
   try {
-    // 🔒 ADMIN ONLY
-    const auth = await requireAuth(request, "ADMIN");
+    // 🔒 ADMIN e LEAD_ARCHITECT
+    const auth = await requireAuth(request, ["ADMIN", "LEAD_ARCHITECT"]);
     if (auth.error) return auth.error;
 
     const { searchParams } = new URL(request.url);

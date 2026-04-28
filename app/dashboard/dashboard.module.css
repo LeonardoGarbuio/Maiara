@@ -129,6 +129,10 @@
   font-weight: 600;
 }
 
+.navItemBottom {
+  margin-top: auto;
+}
+
 .navItem svg {
   flex-shrink: 0;
 }

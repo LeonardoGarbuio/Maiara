@@ -8,8 +8,8 @@ export const dynamic = "force-dynamic";
 // GET /api/transactions - Lista transações (com filtros de mês/ano)
 export async function GET(request) {
   try {
-    // 🔒 ADMIN ONLY
-    const auth = await requireAuth(request, "ADMIN");
+    // 🔒 ADMIN e LEAD_ARCHITECT
+    const auth = await requireAuth(request, ["ADMIN", "LEAD_ARCHITECT"]);
     if (auth.error) return auth.error;
 
     const { searchParams } = new URL(request.url);
@@ -58,11 +58,15 @@ export async function GET(request) {
 // POST /api/transactions - Cria nova transação
 export async function POST(request) {
   try {
-    // 🔒 ADMIN ONLY
-    const auth = await requireAuth(request, "ADMIN");
+    // 🔒 ADMIN e LEAD_ARCHITECT
+    const auth = await requireAuth(request, ["ADMIN", "LEAD_ARCHITECT"]);
     if (auth.error) return auth.error;
 
     const body = await request.json();
+
+    if (auth.user.role === "LEAD_ARCHITECT" && body.category === "Prejuízo/Custo Extra") {
+      return NextResponse.json({ error: "Acesso Negado: Arquiteta Líder não tem permissão para lançar Prejuízos." }, { status: 403 });
+    }
     const transaction = await prisma.financialTransaction.create({
       data: {
         projectId: body.projectId || null,

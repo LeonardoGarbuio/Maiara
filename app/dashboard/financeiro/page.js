@@ -123,7 +123,7 @@ export default function FinanceiroPage() {
   }
 
   // Barreira Visual de Privacidade (Apertando os Parafusos)
-  if (user?.role !== "ADMIN") {
+  if (!["ADMIN", "LEAD_ARCHITECT"].includes(user?.role)) {
     return (
       <div className={styles.page}>
         <div className={styles.restricted}>
