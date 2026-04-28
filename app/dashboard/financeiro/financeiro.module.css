@@ -1,7 +1,11 @@
+/* ==========================================
+   FINANCEIRO — Soft UI Evolution
+   ========================================== */
+
 .page {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 36px;
   animation: fadeIn 0.4s ease-out;
 }
 
@@ -24,20 +28,20 @@
   font-weight: 800;
   color: #fff;
   letter-spacing: -0.03em;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .subtitle {
   font-size: 0.9rem;
-  color: var(--carbon-400);
+  color: var(--sage-400);
 }
 
 .monthNav {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: var(--carbon-800);
-  padding: 4px 12px;
+  gap: 14px;
+  background: var(--sage-800);
+  padding: 5px 14px;
   border-radius: 100px;
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
@@ -45,11 +49,11 @@
 .navBtn {
   background: none;
   border: none;
-  color: var(--carbon-400);
+  color: var(--sage-400);
   font-size: 1.2rem;
   cursor: pointer;
   padding: 0 4px;
-  transition: color 0.2s;
+  transition: color 0.25s;
 }
 
 .navBtn:hover {
@@ -69,7 +73,7 @@
 .metricsGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  gap: 20px;
 }
 
 @media (max-width: 900px) {
@@ -79,19 +83,20 @@
 }
 
 .metricCard {
-  background: var(--carbon-800);
+  background: var(--sage-800);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: var(--radius-lg);
-  padding: 20px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  box-shadow: var(--shadow-soft);
 }
 
 .metricLabel {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--carbon-400);
+  color: var(--sage-400);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -103,15 +108,15 @@
   letter-spacing: -0.02em;
 }
 
-.income { color: var(--emerald-400); }
+.income { color: var(--gold-400); }
 .expense { color: #F87171; }
 
 .metricDiff {
   font-size: 0.75rem;
-  color: var(--carbon-500);
+  color: var(--sage-500);
 }
 
-.profitPositive { border-left: 4px solid var(--emerald-500); }
+.profitPositive { border-left: 4px solid var(--gold-500); }
 .profitNegative { border-left: 4px solid #EF4444; }
 
 /* Tabs */
@@ -123,15 +128,15 @@
 }
 
 .tab {
-  padding: 8px 20px;
+  padding: 10px 22px;
   background: none;
   border: none;
-  color: var(--carbon-500);
+  color: var(--sage-500);
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   position: relative;
-  transition: color 0.2s;
+  transition: color 0.25s;
 }
 
 .tabActive {
@@ -145,7 +150,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--emerald-500);
+  background: var(--gold-500);
   border-radius: 100px;
 }
 
@@ -153,7 +158,7 @@
 .chartsGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  gap: 24px;
 }
 
 @media (max-width: 1100px) {
@@ -163,13 +168,14 @@
 }
 
 .chartCard {
-  background: var(--carbon-800);
+  background: var(--sage-800);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: var(--radius-lg);
-  padding: 24px;
+  padding: 28px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
+  box-shadow: var(--shadow-soft);
 }
 
 .chartTitle {
@@ -214,22 +220,22 @@
 .barLabel {
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--carbon-500);
+  color: var(--sage-500);
 }
 
 .barLegend {
   display: flex;
   justify-content: center;
-  gap: 20px;
-  margin-top: 8px;
+  gap: 24px;
+  margin-top: 10px;
 }
 
 .barLegend span {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 0.75rem;
-  color: var(--carbon-400);
+  color: var(--sage-400);
 }
 
 .dot {
@@ -243,7 +249,7 @@
 .pieSection {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 36px;
   flex-wrap: wrap;
 }
 
@@ -261,7 +267,7 @@
 .pieCenter {
   width: 80px;
   height: 80px;
-  background: var(--carbon-800);
+  background: var(--sage-800);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -276,18 +282,18 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .pieLegendItem {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-size: 0.8rem;
 }
 
 .pieLegendLabel {
-  color: var(--carbon-300);
+  color: var(--sage-300);
   flex: 1;
 }
 
@@ -300,30 +306,30 @@
 .compareSection {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
 }
 
 .compareGroup {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .compareLabel {
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--carbon-300);
+  color: var(--sage-300);
 }
 
 .compareRow {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .compareMonth {
   font-size: 0.75rem;
-  color: var(--carbon-500);
+  color: var(--sage-500);
   width: 30px;
   text-transform: capitalize;
 }
@@ -354,18 +360,19 @@
 .txList {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .txItem {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px;
-  background: var(--carbon-800);
+  gap: 18px;
+  padding: 18px;
+  background: var(--sage-800);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: var(--radius-lg);
-  transition: all 0.2s;
+  transition: all 0.25s;
+  box-shadow: var(--shadow-soft);
 }
 
 .txItem:hover {
@@ -373,9 +380,9 @@
 }
 
 .txIcon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -383,7 +390,7 @@
   font-size: 1.1rem;
 }
 
-.txIncome .txIcon { background: rgba(16, 185, 129, 0.12); color: var(--emerald-400); }
+.txIncome .txIcon { background: rgba(201, 169, 110, 0.12); color: var(--gold-400); }
 .txExpense .txIcon { background: rgba(239, 68, 68, 0.12); color: #F87171; }
 
 .txInfo {
@@ -400,7 +407,7 @@
 
 .txMeta {
   font-size: 0.78rem;
-  color: var(--carbon-500);
+  color: var(--sage-500);
 }
 
 .txAmount {
@@ -408,33 +415,34 @@
   font-weight: 700;
 }
 
-.amountIncome { color: var(--emerald-400); }
+.amountIncome { color: var(--gold-400); }
 .amountExpense { color: #F87171; }
 
 .deleteBtn:hover {
   color: #EF4444;
 }
 
-/* Restricted Access View (Apertando os Parafusos) */
+/* Restricted Access View */
 .restricted {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 80px 20px;
-  background: var(--carbon-800);
+  padding: 96px 24px;
+  background: var(--sage-800);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: var(--radius-xl);
   max-width: 600px;
-  margin: 40px auto;
-  gap: 20px;
+  margin: 48px auto;
+  gap: 24px;
   animation: fadeIn 0.5s ease-out;
+  box-shadow: var(--shadow-soft);
 }
 
 .restrictedIcon {
   font-size: 3rem;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.3));
 }
 
@@ -445,13 +453,13 @@
 .restricted .subtitle {
   max-width: 400px;
   line-height: 1.6;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .empty {
   text-align: center;
-  color: var(--carbon-500);
-  padding: 60px;
+  color: var(--sage-500);
+  padding: 72px;
   font-size: 0.95rem;
 }
 
@@ -460,7 +468,7 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -469,19 +477,20 @@
 }
 
 .modal {
-  background: var(--carbon-800);
+  background: var(--sage-800);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-xl);
   width: 100%;
   max-width: 520px;
   animation: fadeIn 0.2s ease-out;
+  box-shadow: var(--shadow-elevated);
 }
 
 .modalHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24px 28px;
+  padding: 28px 32px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -492,61 +501,61 @@
 }
 
 .closeBtn {
-  background: none; border: none; color: var(--carbon-400); cursor: pointer; font-size: 1.1rem;
+  background: none; border: none; color: var(--sage-400); cursor: pointer; font-size: 1.1rem;
 }
 
 .modalBody {
-  padding: 24px 28px;
+  padding: 28px 32px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
 .modalFooter {
-  display: flex; gap: 10px; justify-content: flex-end; padding: 20px 28px; border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex; gap: 12px; justify-content: flex-end; padding: 24px 32px; border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .typeToggle {
   display: flex;
   gap: 8px;
-  background: var(--carbon-900);
-  padding: 4px;
+  background: var(--sage-900);
+  padding: 5px;
   border-radius: var(--radius-md);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .typeBtn {
   flex: 1;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 11px;
+  border-radius: 10px;
   border: none;
   background: none;
-  color: var(--carbon-400);
+  color: var(--sage-400);
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.25s;
 }
 
-.typeBtnIncome { background: rgba(16, 185, 129, 0.1); color: var(--emerald-400); }
+.typeBtnIncome { background: rgba(201, 169, 110, 0.1); color: var(--gold-400); }
 .typeBtnExpense { background: rgba(239, 68, 68, 0.1); color: #F87171; }
 
-.field { display: flex; flex-direction: column; gap: 6px; }
-.field label { font-size: 0.82rem; font-weight: 600; color: var(--carbon-200); }
-.row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.input { background: var(--carbon-700); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-md); color: #fff; padding: 11px 14px; font-size: 0.9rem; width: 100%; font-family: inherit; }
-.input:focus { outline: none; border-color: var(--emerald-500); }
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field label { font-size: 0.82rem; font-weight: 600; color: var(--sage-200); }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.input { background: var(--sage-700); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-md); color: #fff; padding: 13px 16px; font-size: 0.9rem; width: 100%; font-family: inherit; box-shadow: var(--shadow-inset); }
+.input:focus { outline: none; border-color: var(--gold-500); }
 
 .btnPrimary {
-  display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; background: linear-gradient(135deg, var(--emerald-600), var(--emerald-500)); color: #fff; font-weight: 600; font-size: 0.9rem; border: none; border-radius: var(--radius-md); cursor: pointer; transition: all 0.25s;
+  display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: linear-gradient(135deg, var(--gold-600), var(--gold-500)); color: #fff; font-weight: 600; font-size: 0.9rem; border: none; border-radius: var(--radius-md); cursor: pointer; transition: all 0.25s;
 }
 
 .btnSecondary {
-  display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; background: transparent; color: var(--carbon-300); font-weight: 500; font-size: 0.9rem; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: var(--radius-md); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: transparent; color: var(--sage-300); font-weight: 500; font-size: 0.9rem; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: var(--radius-md); cursor: pointer;
 }
 
 .toast {
-  position: fixed; bottom: 28px; right: 28px; padding: 14px 20px; border-radius: var(--radius-md); font-size: 0.9rem; font-weight: 500; z-index: 200; animation: fadeIn 0.3s ease-out;
+  position: fixed; bottom: 28px; right: 28px; padding: 16px 22px; border-radius: var(--radius-md); font-size: 0.9rem; font-weight: 500; z-index: 200; animation: fadeIn 0.3s ease-out; box-shadow: var(--shadow-elevated);
 }
-.toastSuccess { background: rgba(16, 185, 129, 0.9); color: #fff; }
+.toastSuccess { background: rgba(201, 169, 110, 0.9); color: #fff; }
 .toastError { background: rgba(239, 68, 68, 0.9); color: #fff; }

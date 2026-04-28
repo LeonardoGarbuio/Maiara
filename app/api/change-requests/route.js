@@ -1,19 +1,11 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { verifyToken } from "@/lib/auth";
-
-async function getUser() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("tiamai_token")?.value;
-  if (!token) return null;
-  return await verifyToken(token);
-}
+import { requireAuth } from "@/lib/api-auth";
 
 export async function GET(request) {
   try {
-    const user = await getUser();
-    if (!user) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    const auth = await requireAuth(request);
+    if (auth.error) return auth.error;
 
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get("projectId");
@@ -42,12 +34,10 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const user = await getUser();
-    if (!user) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
-    
-    if (user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Apenas administradores podem solicitar alterações." }, { status: 403 });
-    }
+    // 🔒 ADMIN ONLY
+    const auth = await requireAuth(request, "ADMIN");
+    if (auth.error) return auth.error;
+    const user = auth.user;
 
     const { projectId, documentId, description, checklists } = await request.json();
 

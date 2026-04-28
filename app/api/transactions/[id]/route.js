@@ -1,9 +1,14 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/api-auth";
 
 // DELETE /api/transactions/[id]
 export async function DELETE(request, { params }) {
   try {
+    // 🔒 ADMIN ONLY
+    const auth = await requireAuth(request, "ADMIN");
+    if (auth.error) return auth.error;
+
     const { id } = await params;
     await prisma.financialTransaction.delete({ where: { id } });
     return NextResponse.json({ message: "Transação deletada" });
@@ -15,6 +20,10 @@ export async function DELETE(request, { params }) {
 // PUT /api/transactions/[id]
 export async function PUT(request, { params }) {
   try {
+    // 🔒 ADMIN ONLY
+    const auth = await requireAuth(request, "ADMIN");
+    if (auth.error) return auth.error;
+
     const { id } = await params;
     const body = await request.json();
     const transaction = await prisma.financialTransaction.update({

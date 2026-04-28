@@ -6,7 +6,8 @@ import Link from "next/link";
 export default function ChangeRequestsPage() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(true); // Should be fetched from profile API normally, mocked true logic here
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   
   // Create Modal State
   const [isNewRequestModalOpen, setIsNewRequestModalOpen] = useState(false);
@@ -38,6 +39,13 @@ export default function ChangeRequestsPage() {
   }
 
   useEffect(() => {
+    // 🔒 Verificação real do papel do usuário
+    const stored = localStorage.getItem("tiamai_user");
+    if (stored) {
+      const userData = JSON.parse(stored);
+      setCurrentUser(userData);
+      setIsAdmin(userData.role === "ADMIN");
+    }
     fetchRequests();
     fetchProjects();
   }, []);

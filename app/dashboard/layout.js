@@ -50,7 +50,7 @@ const NAV_ITEMS = [
         <line x1="22" y1="11" x2="16" y2="11" />
       </svg>
     ),
-    adminOnly: true,
+    superAdminOnly: true,
   },
   {
     label: "Financeiro",
@@ -61,7 +61,7 @@ const NAV_ITEMS = [
         <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
       </svg>
     ),
-    adminOnly: true,
+    superAdminOnly: true,
   },
   {
     label: "Atestados",
@@ -98,9 +98,11 @@ export default function DashboardLayout({ children }) {
 
   if (!user) return null;
 
-  const filteredNav = NAV_ITEMS.filter(
-    (item) => !item.adminOnly || user.role === "ADMIN"
-  );
+  const filteredNav = NAV_ITEMS.filter((item) => {
+    if (item.superAdminOnly) return user.role === "ADMIN";
+    if (item.adminOnly) return ["ADMIN", "LEAD_ARCHITECT"].includes(user.role);
+    return true;
+  });
 
   return (
     <div className={styles.layout}>
@@ -113,12 +115,17 @@ export default function DashboardLayout({ children }) {
               <path d="M12 28V16L20 10L28 16V28H22V22H18V28H12Z" fill="white" fillOpacity="0.95" />
               <defs>
                 <linearGradient id="sb-grad" x1="0" y1="0" x2="40" y2="40">
-                  <stop stopColor="#059669" />
-                  <stop offset="1" stopColor="#10B981" />
+                  <stop stopColor="#B8962E" />
+                  <stop offset="1" stopColor="#C9A96E" />
                 </linearGradient>
               </defs>
             </svg>
-            {sidebarOpen && <span className={styles.brandText}>Tia Mai</span>}
+            {sidebarOpen && (
+              <div className={styles.brandBlock}>
+                <span className={styles.brandText}>Maiara Garbuio</span>
+                <span className={styles.brandSubtitle}>Arquitetura e Interiores</span>
+              </div>
+            )}
           </Link>
           <button
             className={styles.toggleBtn}
@@ -163,10 +170,10 @@ export default function DashboardLayout({ children }) {
             {sidebarOpen && (
               <div className={styles.userMeta}>
                 <span className={styles.userName}>
-                  {user.name || (user.role === "ADMIN" ? "Administradora" : "Equipe")}
+                  {user.name || (user.role === "ADMIN" ? "Administradora" : user.role === "LEAD_ARCHITECT" ? "Arquiteta Líder" : "Equipe")}
                 </span>
                 <span className={styles.userRole}>
-                  {user.role === "ADMIN" ? "Administradora" : "Equipe"}
+                  {user.role === "ADMIN" ? "Administradora" : user.role === "LEAD_ARCHITECT" ? "Arquiteta Líder" : "Equipe"}
                 </span>
               </div>
             )}
@@ -190,12 +197,15 @@ export default function DashboardLayout({ children }) {
               <path d="M12 28V16L20 10L28 16V28H22V22H18V28H12Z" fill="white" fillOpacity="0.95" />
               <defs>
                 <linearGradient id="mh-grad" x1="0" y1="0" x2="40" y2="40">
-                  <stop stopColor="#059669" />
-                  <stop offset="1" stopColor="#10B981" />
+                  <stop stopColor="#B8962E" />
+                  <stop offset="1" stopColor="#C9A96E" />
                 </linearGradient>
               </defs>
             </svg>
-            <span className={styles.brandText}>Tia Mai</span>
+            <div className={styles.brandBlock}>
+              <span className={styles.brandText}>Maiara Garbuio</span>
+              <span className={styles.brandSubtitle}>Arquitetura e Interiores</span>
+            </div>
           </div>
           <button 
             className={styles.mobileHamburger}

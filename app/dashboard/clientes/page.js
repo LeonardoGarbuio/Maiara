@@ -33,7 +33,7 @@ export default function ClientesPage() {
     fetchData();
   }, []);
 
-  const isAdmin = user?.role === "ADMIN";
+  const isAdmin = ["ADMIN", "LEAD_ARCHITECT"].includes(user?.role);
   const showToast = (msg, type = "success") => { setToast({ msg, type }); setTimeout(() => setToast(null), 3000); };
 
   const filtered = clients.filter((c) =>

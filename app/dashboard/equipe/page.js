@@ -53,7 +53,7 @@ export default function EquipePage() {
       if (res.ok) {
         const created = await res.json();
         setUsers((prev) => [...prev, created]);
-        showToast(`${form.role === "ADMIN" ? "Admin" : "Estagiário"} cadastrado!`);
+        showToast(`${form.role === "ADMIN" ? "Admin" : form.role === "LEAD_ARCHITECT" ? "Arquiteta Líder" : "Estagiário"} cadastrado!`);
       } else {
         const err = await res.json();
         showToast(err.error || "Erro ao criar", "error");
@@ -104,7 +104,7 @@ export default function EquipePage() {
 
   const formatDate = (d) => d ? new Date(d).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "Nunca";
 
-  const admins = users.filter((u) => u.role === "ADMIN");
+  const admins = users.filter((u) => ["ADMIN", "LEAD_ARCHITECT"].includes(u.role));
   const team = users.filter((u) => u.role === "TEAM");
 
   if (loading) {
@@ -114,6 +114,28 @@ export default function EquipePage() {
           <div>
             <h1 className={styles.title}>Carregando equipe...</h1>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 🔒 Barreira de Segurança — Apenas Admin
+  if (user?.role !== "ADMIN") {
+    return (
+      <div className={styles.page}>
+        <div style={{ 
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+          minHeight: "60vh", textAlign: "center", gap: "16px" 
+        }}>
+          <div style={{ fontSize: "48px" }}>🔒</div>
+          <h1 className={styles.title}>Acesso Restrito</h1>
+          <p style={{ color: "rgba(255,255,255,0.6)", maxWidth: "400px" }}>
+            A gestão de equipe é exclusiva para administradores.
+            Seus acessos são monitorados para garantir a segurança da empresa.
+          </p>
+          <button className={styles.btnPrimary} onClick={() => window.location.href = "/dashboard"}>
+            Voltar ao Painel
+          </button>
         </div>
       </div>
     );
@@ -152,7 +174,7 @@ export default function EquipePage() {
                   Último acesso: {formatDate(u.lastLogin)}
                 </div>
               </div>
-              <div className={styles.userBadge}>Admin</div>
+              <div className={styles.userBadge}>{u.role === "ADMIN" ? "Admin" : "Arquiteta Líder"}</div>
               {u.id !== user?.id && (
                 <div className={styles.actionsWrapper}>
                   <button className={`${styles.iconBtn} ${styles.iconBtnDanger}`} onClick={() => handleDelete(u.id)} title="Deletar">
@@ -212,6 +234,7 @@ export default function EquipePage() {
             <div className={styles.modalBody}>
               <div className={styles.roleToggle}>
                 <button className={`${styles.roleBtn} ${form.role === "TEAM" ? styles.roleBtnActive : ""}`} onClick={() => setForm({ ...form, role: "TEAM" })}>Estagiário</button>
+                <button className={`${styles.roleBtn} ${form.role === "LEAD_ARCHITECT" ? styles.roleBtnActive : ""}`} style={form.role === "LEAD_ARCHITECT" ? { background: 'rgba(201, 169, 110, 0.1)', color: 'var(--gold-400)', borderColor: 'var(--gold-500)' } : {}} onClick={() => setForm({ ...form, role: "LEAD_ARCHITECT" })}>Arquiteta Líder</button>
                 <button className={`${styles.roleBtn} ${form.role === "ADMIN" ? styles.roleBtnActiveAdmin : ""}`} onClick={() => setForm({ ...form, role: "ADMIN" })}>Administrador</button>
               </div>
               <div className={styles.field}><label>Nome completo *</label><input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Nome do usuário" className={styles.input} /></div>

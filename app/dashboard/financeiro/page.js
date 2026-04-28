@@ -65,7 +65,7 @@ export default function FinanceiroPage() {
   const expCats = {};
   monthTx.filter((t) => t.type === "EXPENSE").forEach((t) => { expCats[t.category || "Outros"] = (expCats[t.category || "Outros"] || 0) + parseFloat(t.amount); });
   const totalCatExp = Object.values(expCats).reduce((a, b) => a + b, 0);
-  const pieColors = ["#10B981","#3B82F6","#F59E0B","#EF4444","#8B5CF6","#EC4899"];
+  const pieColors = ["#C9A96E","#3B82F6","#F59E0B","#EF4444","#8B5CF6","#EC4899"];
   const barMax = Math.max(income, prevIncome, expense, prevExpense, 1);
 
   const fmt = (v) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);

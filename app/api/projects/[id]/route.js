@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { cacheInvalidatePrefix } from "@/lib/cache";
 
 // GET /api/projects/[id] - Busca projeto completo
 export async function GET(request, { params }) {
@@ -23,8 +24,8 @@ export async function GET(request, { params }) {
         transactions: { orderBy: { transactionDate: "desc" } },
         history: {
           orderBy: { changedAt: "desc" },
-          take: 20,
-          include: { user: { select: { id: true, name: true } } },
+          take: 10,
+          select: { id: true, changedAt: true, dataSnapshot: true, user: { select: { id: true, name: true } } },
         },
       },
     });
@@ -194,6 +195,9 @@ export async function PUT(request, { params }) {
       },
     });
 
+    // Invalida o cache para refletir a atualização imediatamente
+    cacheInvalidatePrefix("projects");
+
     return NextResponse.json(updated);
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -205,6 +209,10 @@ export async function DELETE(request, { params }) {
   try {
     const { id } = await params;
     await prisma.project.delete({ where: { id } });
+    
+    // Invalida o cache
+    cacheInvalidatePrefix("projects");
+    
     return NextResponse.json({ message: "Projeto deletado com sucesso" });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

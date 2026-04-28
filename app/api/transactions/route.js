@@ -1,32 +1,42 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { cacheGetOrFetch, cacheInvalidatePrefix } from "@/lib/cache";
+import { requireAuth } from "@/lib/api-auth";
 
 export const dynamic = "force-dynamic";
 
 // GET /api/transactions - Lista transações (com filtros de mês/ano)
 export async function GET(request) {
   try {
+    // 🔒 ADMIN ONLY
+    const auth = await requireAuth(request, "ADMIN");
+    if (auth.error) return auth.error;
+
     const { searchParams } = new URL(request.url);
     const month = searchParams.get("month");
     const year = searchParams.get("year");
     const type = searchParams.get("type");
 
-    const where = {};
-    if (type) where.type = type;
+    const cacheKey = `transactions:list:${month || "all"}:${year || "all"}:${type || "all"}`;
 
-    if (month && year) {
-      const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
-      const endDate = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59);
-      where.transactionDate = { gte: startDate, lte: endDate };
-    }
+    const transactions = await cacheGetOrFetch(cacheKey, async () => {
+      const where = {};
+      if (type) where.type = type;
 
-    const transactions = await prisma.financialTransaction.findMany({
-      where,
-      orderBy: { transactionDate: "desc" },
-      include: {
-        project: { select: { id: true, name: true } },
-      },
-    });
+      if (month && year) {
+        const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+        const endDate = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59);
+        where.transactionDate = { gte: startDate, lte: endDate };
+      }
+
+      return await prisma.financialTransaction.findMany({
+        where,
+        orderBy: { transactionDate: "desc" },
+        include: {
+          project: { select: { id: true, name: true } },
+        },
+      });
+    }, 60_000); // 60s TTL
 
     // Calcula totais
     const income = transactions
@@ -48,6 +58,10 @@ export async function GET(request) {
 // POST /api/transactions - Cria nova transação
 export async function POST(request) {
   try {
+    // 🔒 ADMIN ONLY
+    const auth = await requireAuth(request, "ADMIN");
+    if (auth.error) return auth.error;
+
     const body = await request.json();
     const transaction = await prisma.financialTransaction.create({
       data: {
@@ -62,6 +76,9 @@ export async function POST(request) {
         project: { select: { id: true, name: true } },
       },
     });
+    
+    cacheInvalidatePrefix("transactions");
+    
     return NextResponse.json(transaction, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

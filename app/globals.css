@@ -2,51 +2,59 @@
 @import "tailwindcss";
 
 /* ========================================
-   TIA MAI - DESIGN SYSTEM
-   Dark Mode Carbon + Verde Esmeralda
+   MAIARA GARBUIO — ARQUITETURA E INTERIORES
+   Soft UI Evolution · Sage Green + Gold Champagne
+   Inspirado na identidade visual da marca
    ======================================== */
 
 :root {
-  /* Carbon Palette */
-  --carbon-950: #050505;
-  --carbon-900: #0A0A0A;
-  --carbon-800: #111111;
-  --carbon-700: #1A1A1A;
-  --carbon-600: #222222;
-  --carbon-500: #333333;
-  --carbon-400: #555555;
-  --carbon-300: #888888;
-  --carbon-200: #BBBBBB;
-  --carbon-100: #E0E0E0;
+  /* Sage Green Palette — inspirado no fundo da logo */
+  --sage-950: #0F1A16;
+  --sage-900: #152119;
+  --sage-800: #1C2E25;
+  --sage-700: #243832;
+  --sage-600: #2E4A40;
+  --sage-500: #3A5C4F;
+  --sage-400: #5A7D6E;
+  --sage-300: #8BA99A;
+  --sage-200: #B5CCBF;
+  --sage-100: #DDE8E1;
 
-  /* Verde Esmeralda */
-  --emerald-900: #064E3B;
-  --emerald-700: #047857;
-  --emerald-600: #059669;
-  --emerald-500: #10B981;
-  --emerald-400: #34D399;
-  --emerald-300: #6EE7B7;
+  /* Gold Champagne — accent principal (da logo) */
+  --gold-700: #9A7B24;
+  --gold-600: #B8962E;
+  --gold-500: #C9A96E;
+  --gold-400: #D4B896;
+  --gold-300: #E2CEAF;
+  --gold-200: #F0E4D2;
 
-  /* Verde Limão (Ações / Alertas) */
-  --lime-500: #84CC16;
-  --lime-400: #A3E635;
+  /* Gold Functional */
+  --gold-glow: rgba(201, 169, 110, 0.2);
+  --gold-border: rgba(201, 169, 110, 0.3);
+  --gold-bg: rgba(201, 169, 110, 0.08);
+  --gold-bg-strong: rgba(201, 169, 110, 0.14);
 
   /* Status */
   --status-danger: #EF4444;
   --status-warning: #F59E0B;
-  --status-info: #3B82F6;
-  --status-success: var(--emerald-500);
+  --status-info: #60A5FA;
+  --status-success: #6EE7B7;
 
-  /* Spacing */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  /* Spacing — Soft UI generoso */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 26px;
 
-  /* Shadows */
-  --shadow-glow: 0 0 20px rgba(16, 185, 129, 0.15);
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
-  --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.6);
+  /* Soft UI Evolution Shadows */
+  --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.15),
+                 0 4px 14px rgba(0, 0, 0, 0.1);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.18),
+                 0 10px 28px rgba(0, 0, 0, 0.1);
+  --shadow-elevated: 0 4px 14px rgba(0, 0, 0, 0.2),
+                     0 20px 48px rgba(0, 0, 0, 0.12);
+  --shadow-glow: 0 0 24px rgba(201, 169, 110, 0.25);
+  --shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
 * {
@@ -61,8 +69,8 @@ html {
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: var(--carbon-900);
-  color: var(--carbon-100);
+  background-color: var(--sage-900);
+  color: var(--sage-100);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -92,16 +100,16 @@ h3 { font-size: 1.25rem; }
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--carbon-800);
+  background: var(--sage-800);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--carbon-500);
+  background: var(--sage-500);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--emerald-600);
+  background: var(--gold-500);
 }
 
 /* ========================================
@@ -115,6 +123,17 @@ input, select, textarea {
 
 input:focus, select:focus, textarea:focus {
   outline: none;
+}
+
+/* ========================================
+   GLOBAL CURSOR
+   ======================================== */
+
+a, button, [role="button"], label[for], select,
+input[type="checkbox"], input[type="radio"],
+input[type="submit"], input[type="button"],
+summary {
+  cursor: pointer;
 }
 
 /* ========================================
@@ -137,8 +156,8 @@ input:focus, select:focus, textarea:focus {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 8px rgba(16, 185, 129, 0.3); }
-  50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); }
+  0%, 100% { box-shadow: 0 0 8px rgba(201, 169, 110, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(201, 169, 110, 0.5); }
 }
 
 @keyframes shimmer {
@@ -159,18 +178,31 @@ input:focus, select:focus, textarea:focus {
 }
 
 /* ========================================
+   ACCESSIBILITY — Reduced Motion
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ========================================
    UTILITY CLASSES
    ======================================== */
 
 .glass {
-  background: rgba(17, 17, 17, 0.7);
+  background: rgba(28, 46, 37, 0.7);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .glass-card {
-  background: rgba(26, 26, 26, 0.6);
+  background: rgba(36, 56, 50, 0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -184,19 +216,19 @@ input:focus, select:focus, textarea:focus {
   justify-content: center;
   gap: 8px;
   padding: 12px 28px;
-  background: linear-gradient(135deg, var(--emerald-600), var(--emerald-500));
-  color: #FFFFFF;
+  background: linear-gradient(135deg, var(--gold-600), var(--gold-500));
+  color: #FFF;
   font-weight: 600;
   font-size: 0.95rem;
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   letter-spacing: 0.01em;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--emerald-500), var(--emerald-400));
+  background: linear-gradient(135deg, var(--gold-500), var(--gold-400));
   box-shadow: var(--shadow-glow);
   transform: translateY(-1px);
 }
@@ -212,18 +244,18 @@ input:focus, select:focus, textarea:focus {
   gap: 8px;
   padding: 12px 28px;
   background: transparent;
-  color: var(--carbon-200);
+  color: var(--sage-200);
   font-weight: 500;
   font-size: 0.95rem;
-  border: 1px solid var(--carbon-500);
+  border: 1px solid var(--sage-500);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
 }
 
 .btn-secondary:hover {
-  border-color: var(--emerald-500);
-  color: var(--emerald-400);
+  border-color: var(--gold-500);
+  color: var(--gold-400);
 }
 
 /* Status badges */
@@ -239,25 +271,25 @@ input:focus, select:focus, textarea:focus {
 }
 
 .badge-success {
-  background: rgba(16, 185, 129, 0.15);
-  color: var(--emerald-400);
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: rgba(110, 231, 183, 0.12);
+  color: #6EE7B7;
+  border: 1px solid rgba(110, 231, 183, 0.2);
 }
 
 .badge-danger {
-  background: rgba(239, 68, 68, 0.15);
+  background: rgba(239, 68, 68, 0.12);
   color: #F87171;
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 .badge-warning {
-  background: rgba(245, 158, 11, 0.15);
+  background: rgba(245, 158, 11, 0.12);
   color: #FBBF24;
-  border: 1px solid rgba(245, 158, 11, 0.25);
+  border: 1px solid rgba(245, 158, 11, 0.2);
 }
 
 .badge-info {
-  background: rgba(59, 130, 246, 0.15);
-  color: #60A5FA;
-  border: 1px solid rgba(59, 130, 246, 0.25);
+  background: rgba(96, 165, 250, 0.12);
+  color: #93C5FD;
+  border: 1px solid rgba(96, 165, 250, 0.2);
 }

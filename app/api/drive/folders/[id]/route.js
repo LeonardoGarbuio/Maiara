@@ -1,14 +1,6 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { verifyToken } from "@/lib/auth";
-
-async function getUser() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("tiamai_token")?.value;
-  if (!token) return null;
-  return await verifyToken(token);
-}
+import { requireAuth } from "@/lib/api-auth";
 
 // Helper: check if folder's project is finished
 async function isFolderProjectFinished(folderId) {
@@ -26,8 +18,8 @@ async function isFolderProjectFinished(folderId) {
 
 export async function GET(request, { params }) {
   try {
-    const user = await getUser();
-    if (!user) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    const auth = await requireAuth(request);
+    if (auth.error) return auth.error;
 
     const paramsResolved = await params;
     const { id } = paramsResolved;
@@ -63,8 +55,9 @@ export async function GET(request, { params }) {
 
 export async function PUT(request, { params }) {
   try {
-    const user = await getUser();
-    if (!user) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    const auth = await requireAuth(request);
+    if (auth.error) return auth.error;
+    const user = auth.user;
 
     const paramsResolved = await params;
     const { id } = paramsResolved;
@@ -118,8 +111,9 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    const user = await getUser();
-    if (!user) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    const auth = await requireAuth(request);
+    if (auth.error) return auth.error;
+    const user = auth.user;
 
     const paramsResolved = await params;
     const { id } = paramsResolved;

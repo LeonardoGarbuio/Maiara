@@ -1,9 +1,14 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/api-auth";
 
 // DELETE /api/users/[id] - Deleta um usuário
 export async function DELETE(request, { params }) {
   try {
+    // 🔒 ADMIN ONLY
+    const auth = await requireAuth(request, "ADMIN");
+    if (auth.error) return auth.error;
+
     const { id } = await params;
     await prisma.user.delete({ where: { id } });
     return NextResponse.json({ message: "Usuário deletado com sucesso" });
@@ -15,6 +20,10 @@ export async function DELETE(request, { params }) {
 // PUT /api/users/[id] - Atualiza um usuário
 export async function PUT(request, { params }) {
   try {
+    // 🔒 ADMIN ONLY
+    const auth = await requireAuth(request, "ADMIN");
+    if (auth.error) return auth.error;
+
     const { id } = await params;
     const body = await request.json();
 

@@ -1,20 +1,12 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { verifyToken } from "@/lib/auth";
+import { requireAuth } from "@/lib/api-auth";
 import { getSupabaseAdmin, ensureBucketExists } from "@/lib/supabase";
-
-async function getUser() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("tiamai_token")?.value;
-  if (!token) return null;
-  return await verifyToken(token);
-}
 
 export async function GET(request) {
   try {
-    const user = await getUser();
-    if (!user) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    const auth = await requireAuth(request);
+    if (auth.error) return auth.error;
 
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get("projectId");
@@ -51,8 +43,9 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const user = await getUser();
-    if (!user) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    const auth = await requireAuth(request);
+    if (auth.error) return auth.error;
+    const user = auth.user;
 
     const authCheck = await prisma.user.findUnique({ where: { id: user.id } });
     if (!authCheck) return NextResponse.json({ error: "Usuário inválido" }, { status: 401 });

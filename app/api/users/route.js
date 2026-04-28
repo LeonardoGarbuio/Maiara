@@ -1,25 +1,34 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { cacheGetOrFetch, cacheInvalidatePrefix } from "@/lib/cache";
+import { requireAuth } from "@/lib/api-auth";
 
 export const dynamic = "force-dynamic";
 
 // GET /api/users - Lista todos os usuários
-export async function GET() {
+export async function GET(request) {
   try {
-    const users = await prisma.user.findMany({
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        name: true,
-        username: true,
-        role: true,
-        avatarUrl: true,
-        lastLogin: true,
-        createdAt: true,
-        createdBy: true,
-      },
-    });
+    // 🔒 ADMIN ONLY
+    const auth = await requireAuth(request, "ADMIN");
+    if (auth.error) return auth.error;
+
+    const users = await cacheGetOrFetch("users:list", async () => {
+      return await prisma.user.findMany({
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          name: true,
+          username: true,
+          role: true,
+          avatarUrl: true,
+          lastLogin: true,
+          createdAt: true,
+          createdBy: true,
+        },
+      });
+    }, 120_000); // 120s TTL
+    
     return NextResponse.json(users);
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -29,6 +38,10 @@ export async function GET() {
 // POST /api/users - Cria novo usuário (Admin cria estagiários/admins)
 export async function POST(request) {
   try {
+    // 🔒 ADMIN ONLY
+    const auth = await requireAuth(request, "ADMIN");
+    if (auth.error) return auth.error;
+
     const body = await request.json();
 
     // Limpar whitespaces e padronizar minúsculas
@@ -68,6 +81,8 @@ export async function POST(request) {
         createdAt: true,
       },
     });
+
+    cacheInvalidatePrefix("users");
 
     return NextResponse.json(user, { status: 201 });
   } catch (error) {

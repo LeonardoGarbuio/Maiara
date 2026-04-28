@@ -1,7 +1,7 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Tia Mai | Sistema Gestor de Projetos",
+  title: "Maiara Garbuio | Arquitetura e Interiores",
   description:
     "Sistema de gestão de projetos de arquitetura e interiores — Maiara Garbuio Arquitetura. Controle de equipe, prazos, documentos e finanças.",
 };

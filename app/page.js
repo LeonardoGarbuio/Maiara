@@ -73,15 +73,15 @@ export default function LoginPage() {
                     x2="40"
                     y2="40"
                   >
-                    <stop stopColor="#059669" />
-                    <stop offset="1" stopColor="#10B981" />
+                    <stop stopColor="#B8962E" />
+                    <stop offset="1" stopColor="#C9A96E" />
                   </linearGradient>
                 </defs>
               </svg>
             </div>
             <div>
-              <h1 className={styles.logoTitle}>Tia Mai</h1>
-              <p className={styles.logoSubtitle}>Sistema de Gestão</p>
+              <h1 className={styles.logoTitle}>Maiara Garbuio</h1>
+              <p className={styles.logoSubtitle}>Arquitetura e Interiores</p>
             </div>
           </div>
 

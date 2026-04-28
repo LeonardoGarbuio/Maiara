@@ -35,11 +35,26 @@ export async function GET(request) {
       return await prisma.project.findMany({
         where,
         orderBy: { createdAt: "desc" },
-        include: {
+        select: {
+          id: true,
+          name: true,
+          type: true,
+          status: true,
+          deadline: true,
+          totalValue: true,
+          paymentType: true,
+          installments: true,
+          upfrontValue: true,
+          assignedTo: true,
+          createdAt: true,
           client: { select: { id: true, name: true } },
-          phases: { orderBy: { order: "asc" } },
+          phases: { 
+            select: { id: true, name: true, order: true, status: true, projectId: true },
+            orderBy: { order: "asc" } 
+          },
           transactions: {
             where: { type: "EXPENSE" },
+            select: { id: true, amount: true, description: true, transactionDate: true },
             orderBy: { transactionDate: "desc" }
           },
           _count: { select: { documents: true, transactions: true } },

@@ -5,7 +5,7 @@ import styles from "./atestados.module.css";
 
 const STATUS_MAP = {
   PENDING: { label: "Pendente", color: "#FBBF24", bg: "rgba(245, 158, 11, 0.1)" },
-  APPROVED: { label: "Aprovado", color: "#10B981", bg: "rgba(16, 185, 129, 0.1)" },
+  APPROVED: { label: "Aprovado", color: "#C9A96E", bg: "rgba(201, 169, 110, 0.1)" },
   REJECTED: { label: "Rejeitado", color: "#EF4444", bg: "rgba(239, 68, 68, 0.1)" },
 };
 

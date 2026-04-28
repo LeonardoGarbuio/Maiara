@@ -90,7 +90,7 @@ export default function DashboardPage() {
       (expenseCategories[t.category || "Outros"] || 0) + parseFloat(t.amount);
   });
   const totalExpense = Object.values(expenseCategories).reduce((a, b) => a + b, 0);
-  const pieColors = ["#10B981", "#3B82F6", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899"];
+  const pieColors = ["#C9A96E", "#3B82F6", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899"];
 
   const formatCurrency = (v) =>
     new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
@@ -116,7 +116,7 @@ export default function DashboardPage() {
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>
-            Olá, {user?.name || "Equipe"} 👋
+            Olá, {user?.name || "Equipe"}
           </h1>
           <p className={styles.subtitle}>
             Aqui está o resumo do seu escritório hoje.
@@ -135,8 +135,8 @@ export default function DashboardPage() {
       {/* Metric Cards */}
       <div className={styles.metricsGrid}>
         <div className={styles.metricCard}>
-          <div className={styles.metricIcon} style={{ background: "rgba(16,185,129,0.12)" }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
+          <div className={styles.metricIcon} style={{ background: "rgba(201, 169, 110,0.12)" }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="2">
               <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
             </svg>
           </div>
@@ -161,8 +161,8 @@ export default function DashboardPage() {
 
         {isAdmin && (
           <div className={styles.metricCard}>
-            <div className={styles.metricIcon} style={{ background: "rgba(16,185,129,0.12)" }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
+            <div className={styles.metricIcon} style={{ background: "rgba(201, 169, 110,0.12)" }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" strokeWidth="2">
                 <line x1="12" y1="1" x2="12" y2="23" />
                 <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
               </svg>
@@ -230,13 +230,13 @@ export default function DashboardPage() {
                 <span className={styles.barLabel}>Entradas</span>
                 <div className={styles.barRow}>
                   <div className={styles.barTrack}>
-                    <div className={styles.barFill} style={{ width: `${(prevIncome / barMax) * 100}%`, background: "rgba(16,185,129,0.3)" }}></div>
+                    <div className={styles.barFill} style={{ width: `${(prevIncome / barMax) * 100}%`, background: "rgba(201, 169, 110,0.3)" }}></div>
                   </div>
                   <span className={styles.barValue}>{formatCurrency(prevIncome)}</span>
                 </div>
                 <div className={styles.barRow}>
                   <div className={styles.barTrack}>
-                    <div className={styles.barFill} style={{ width: `${(income / barMax) * 100}%`, background: "linear-gradient(90deg, #059669, #10B981)" }}></div>
+                    <div className={styles.barFill} style={{ width: `${(income / barMax) * 100}%`, background: "linear-gradient(90deg, #B8962E, #C9A96E)" }}></div>
                   </div>
                   <span className={styles.barValue}>{formatCurrency(income)}</span>
                 </div>
@@ -258,7 +258,7 @@ export default function DashboardPage() {
               </div>
               <div className={styles.barLegend}>
                 <span><span className={styles.legendDot} style={{ background: "rgba(255,255,255,0.2)" }}></span>Mês Anterior</span>
-                <span><span className={styles.legendDot} style={{ background: "#10B981" }}></span>Mês Atual</span>
+                <span><span className={styles.legendDot} style={{ background: "#C9A96E" }}></span>Mês Atual</span>
               </div>
             </div>
           </div>

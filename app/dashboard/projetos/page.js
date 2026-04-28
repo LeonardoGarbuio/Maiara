@@ -7,7 +7,7 @@ import DriveExplorer from "@/app/components/DriveExplorer";
 
 const STATUS_MAP = {
   PROSPECT: { label: "Prospecção", color: "#60A5FA" },
-  ACTIVE: { label: "Ativo", color: "#10B981" },
+  ACTIVE: { label: "Ativo", color: "#C9A96E" },
   PAUSED: { label: "Pausado", color: "#FBBF24" },
   FINISHED: { label: "Concluído", color: "#888" },
 };
@@ -87,7 +87,8 @@ export default function ProjetosPage() {
     fetchData();
   }, []);
 
-  const isAdmin = user?.role === "ADMIN";
+  const isAdmin = ["ADMIN", "LEAD_ARCHITECT"].includes(user?.role);
+  const isSuperAdmin = user?.role === "ADMIN";
 
   const showToast = (msg, type = "success") => {
     setToast({ msg, type });
@@ -154,7 +155,7 @@ export default function ProjetosPage() {
           const updated = await res.json();
           setProjects((prev) => prev.map((p) => p.id === selectedProject.id ? updated : p));
           
-          if (isAdmin && form.status === "FINISHED" && selectedProject.status !== "FINISHED") {
+          if (isSuperAdmin && form.status === "FINISHED" && selectedProject.status !== "FINISHED") {
             setTimeout(() => {
               customConfirm("Você alterou o status deste projeto para Concluído! Ocorreu algum prejuízo/custo extra durante a execução que deseja registrar no financeiro?", () => {
                  openLossModal(updated);
@@ -375,7 +376,7 @@ export default function ProjetosPage() {
       setShowJustifyModal(false);
       setJustifyData(null);
 
-      if (allCompleted && isAdmin && targetProject) {
+      if (allCompleted && isSuperAdmin && targetProject) {
         setTimeout(() => {
           customConfirm("Projeto 100% concluído! Ocorreu algum prejuízo/custo extra durante a execução que deseja registrar no financeiro?", () => {
             openLossModal(targetProject);
@@ -414,7 +415,7 @@ export default function ProjetosPage() {
 
       if (reason) showToast("Etapa concluída com justificativa!");
 
-      if (allCompleted && isAdmin) {
+      if (allCompleted && isSuperAdmin) {
         setTimeout(() => {
           customConfirm("Projeto 100% concluído! Ocorreu algum prejuízo/custo extra durante a execução que deseja registrar no financeiro?", () => {
             openLossModal(project);
@@ -494,9 +495,11 @@ export default function ProjetosPage() {
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
                     </button>
                     {isAdmin && (<>
-                    <button className={styles.iconBtn} onClick={() => openLossModal(project)} title="Registrar Prejuízo/Despesa">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                    </button>
+                    {isSuperAdmin && (
+                      <button className={styles.iconBtn} onClick={() => openLossModal(project)} title="Registrar Prejuízo/Despesa">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                      </button>
+                    )}
                     <button className={styles.iconBtn} onClick={() => openEdit(project)} title="Editar Projeto">
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </button>
