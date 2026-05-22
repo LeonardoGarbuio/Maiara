@@ -24,11 +24,11 @@ export async function GET(request) {
       if (status) where.status = status;
       if (type) where.type = type;
 
-      // Se for estagiário, só vê projetos atribuídos a ele ou não atribuídos a ninguém
+      // Se for estagiário, só vê projetos atribuídos a ele ou projetos abertos para toda a equipe (sem atribuição)
       if (role === "TEAM" && userId) {
         where.OR = [
-          { assignedTo: userId },
-          { assignedTo: null }
+          { assignees: { some: { id: userId } } },
+          { assignees: { none: {} } }
         ];
       }
 
@@ -45,7 +45,7 @@ export async function GET(request) {
           paymentType: true,
           installments: true,
           upfrontValue: true,
-          assignedTo: true,
+          assignees: { select: { id: true, name: true, role: true, avatarUrl: true } },
           createdAt: true,
           client: { select: { id: true, name: true } },
           phases: { 
@@ -84,8 +84,8 @@ export async function POST(request) {
       cacheInvalidatePrefix("clients");
     }
 
-    // Cria o projeto
-    const project = await prisma.project.create({
+    // Prepara os dados de criação
+    const projectData = {
       data: {
         name: body.name,
         clientId: finalClientId,
@@ -97,9 +97,22 @@ export async function POST(request) {
         installments: body.installments ? Number(body.installments) : 1,
         upfrontValue: body.upfrontValue && !isNaN(body.upfrontValue) ? Number(body.upfrontValue) : null,
         notes: body.notes || null,
-        assignedTo: body.assignedTo || null,
       },
-    });
+    };
+
+    // Se passou um array de assignees
+    if (body.assignees && Array.isArray(body.assignees) && body.assignees.length > 0) {
+      projectData.data.assignees = {
+        connect: body.assignees.map((id) => ({ id }))
+      };
+    } else if (body.assignedTo) { // Fallback para manter compatibilidade com o formato antigo (se vier na requisição)
+      projectData.data.assignees = {
+        connect: [{ id: body.assignedTo }]
+      };
+    }
+
+    // Cria o projeto
+    const project = await prisma.project.create(projectData);
 
     // Cria as fases automaticamente com base no template
     const template = PHASE_TEMPLATES[body.type] || [];

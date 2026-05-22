@@ -13,14 +13,17 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const stored = localStorage.getItem("tiamai_user");
-    if (stored) setUser(JSON.parse(stored));
+    const currentUser = stored ? JSON.parse(stored) : null;
+    if (currentUser) setUser(currentUser);
+
+    const isAdminUser = currentUser?.role === "ADMIN" || currentUser?.role === "LEAD_ARCHITECT";
 
     async function fetchData() {
       try {
         const [projRes, cliRes, txRes, certRes] = await Promise.all([
           fetch("/api/projects"),
           fetch("/api/clients"),
-          fetch("/api/transactions"),
+          isAdminUser ? fetch("/api/transactions") : Promise.resolve(new Response(JSON.stringify([]))),
           fetch("/api/certificates"),
         ]);
         const proj = await projRes.json();
@@ -209,7 +212,7 @@ export default function DashboardPage() {
                   <strong>{phase.projectName}</strong>
                   <span className={styles.alarmPhase}>{phase.name}</span>
                   <span className={styles.alarmDate}>
-                    Prazo: {new Date(phase.deadline).toLocaleDateString("pt-BR")}
+                    Prazo: {new Date(phase.deadline).toLocaleDateString("pt-BR", { timeZone: "UTC" })}
                   </span>
                 </div>
               </div>
@@ -339,7 +342,7 @@ export default function DashboardPage() {
                   </span>
                   {project.deadline && (
                     <span className={styles.projectDeadline}>
-                      Prazo: {new Date(project.deadline).toLocaleDateString("pt-BR")}
+                      Prazo: {new Date(project.deadline).toLocaleDateString("pt-BR", { timeZone: "UTC" })}
                     </span>
                   )}
                 </div>

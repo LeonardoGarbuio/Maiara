@@ -11,16 +11,19 @@ export async function GET(request) {
     const where = {};
     if (phaseId) where.phaseId = phaseId;
 
-    // Se filtra por assignedTo, mostra tarefas do usuário OU tarefas globais (assignedTo = null)
+    // Se filtra por assignedTo, mostra tarefas do usuário OU tarefas globais (sem assignee)
     if (assignedTo) {
-      where.OR = [{ assignedTo }, { assignedTo: null }];
+      where.OR = [
+        { assignees: { some: { id: assignedTo } } },
+        { assignees: { none: {} } }
+      ];
     }
 
     const tasks = await prisma.task.findMany({
       where,
       orderBy: { createdAt: "desc" },
       include: {
-        assignee: { select: { id: true, name: true } },
+        assignees: { select: { id: true, name: true, role: true, avatarUrl: true } },
         phase: {
           select: {
             id: true,
@@ -41,17 +44,24 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const task = await prisma.task.create({
+    const taskData = {
       data: {
         phaseId: body.phaseId,
         description: body.description,
-        assignedTo: body.assignedTo || null, // null = tarefa para todos
         isCompleted: false,
       },
       include: {
-        assignee: { select: { id: true, name: true } },
+        assignees: { select: { id: true, name: true, role: true, avatarUrl: true } },
       },
-    });
+    };
+
+    if (body.assignees && Array.isArray(body.assignees) && body.assignees.length > 0) {
+      taskData.data.assignees = { connect: body.assignees.map(id => ({ id })) };
+    } else if (body.assignedTo) {
+      taskData.data.assignees = { connect: [{ id: body.assignedTo }] };
+    }
+
+    const task = await prisma.task.create(taskData);
     return NextResponse.json(task, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

@@ -19,10 +19,12 @@ export default function ProjetosPage() {
   const [user, setUser] = useState(null);
   const [filter, setFilter] = useState("ALL");
   const [search, setSearch] = useState("");
+  const [searchAssignee, setSearchAssignee] = useState("");
+  const [showAssigneesDropdown, setShowAssigneesDropdown] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [isNewClient, setIsNewClient] = useState(false);
-  const [form, setForm] = useState({ name: "", clientId: "", newClientName: "", type: "INTERIOR", status: "PROSPECT", paymentType: "CASH_UPFRONT", installments: 1, upfrontValue: "", deadline: "", totalValue: "", notes: "", assignedTo: "" });
+  const [form, setForm] = useState({ name: "", clientId: "", newClientName: "", type: "INTERIOR", status: "PROSPECT", paymentType: "CASH_UPFRONT", installments: 1, upfrontValue: "", deadline: "", totalValue: "", notes: "", assignees: [] });
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -59,10 +61,11 @@ export default function ProjetosPage() {
 
   useEffect(() => {
     const stored = localStorage.getItem("tiamai_user");
-    let currentUser = null;
+    let isAdminUser = false;
     if (stored) {
-      currentUser = JSON.parse(stored);
+      const currentUser = JSON.parse(stored);
       setUser(currentUser);
+      isAdminUser = ["ADMIN", "LEAD_ARCHITECT"].includes(currentUser.role);
     }
 
     async function fetchData() {
@@ -70,7 +73,7 @@ export default function ProjetosPage() {
         const [projRes, cliRes, usersRes] = await Promise.all([
           fetch("/api/projects"),
           fetch("/api/clients"),
-          fetch("/api/users"),
+          isAdminUser ? fetch("/api/users") : Promise.resolve(new Response(JSON.stringify([]))),
         ]);
         const proj = await projRes.json();
         const cli = await cliRes.json();
@@ -107,7 +110,7 @@ export default function ProjetosPage() {
 
   const openCreate = () => {
     setSelectedProject(null);
-    setForm({ name: "", clientId: "", newClientName: "", type: "INTERIOR", status: "PROSPECT", paymentType: "CASH_UPFRONT", installments: 1, upfrontValue: "", deadline: "", totalValue: "", notes: "", assignedTo: "" });
+    setForm({ name: "", clientId: "", newClientName: "", type: "INTERIOR", status: "PROSPECT", paymentType: "CASH_UPFRONT", installments: 1, upfrontValue: "", deadline: "", totalValue: "", notes: "", assignees: [] });
     setIsNewClient(false);
     setShowModal(true);
   };
@@ -133,7 +136,7 @@ export default function ProjetosPage() {
       installments: project.installments || 1,
       upfrontValue: project.upfrontValue || "",
       notes: project.notes || "",
-      assignedTo: project.assignedTo || "",
+      assignees: project.assignees ? project.assignees.map(a => a.id) : [],
     });
     setIsNewClient(false);
     setShowModal(true);
@@ -543,7 +546,19 @@ export default function ProjetosPage() {
                 {project.totalValue && <span className={styles.value}>R$ {Number(project.totalValue).toLocaleString("pt-BR")}</span>}
                 {project.deadline && (
                   <span className={isOverdue ? styles.deadlineOverdue : styles.deadline}>
-                    Prazo: {new Date(project.deadline).toLocaleDateString("pt-BR")}
+                    Prazo: {new Date(project.deadline).toLocaleDateString("pt-BR", { timeZone: "UTC" })}
+                  </span>
+                )}
+                {project.assignees && project.assignees.length > 0 ? (
+                  <span className={styles.typeTag} style={{ background: "rgba(255, 255, 255, 0.1)", color: "#fff", borderColor: "rgba(255, 255, 255, 0.2)" }} title={project.assignees.map(a => a.name).join(", ")}>
+                    Equipe: {project.assignees.length > 2 
+                      ? `${project.assignees.slice(0, 2).map(a => a.name.split(" ")[0]).join(", ")} + ${project.assignees.length - 2}`
+                      : project.assignees.map(a => a.name.split(" ")[0]).join(", ")
+                    }
+                  </span>
+                ) : (
+                  <span className={styles.typeTag} style={{ background: "rgba(255, 255, 255, 0.1)", color: "#fff", borderColor: "rgba(255, 255, 255, 0.2)" }}>
+                    Equipe: Todos
                   </span>
                 )}
               </div>
@@ -576,7 +591,7 @@ export default function ProjetosPage() {
                         <div className={styles.phaseDatePickerWrapper}>
                           <input
                             type="date"
-                            value={phase.deadline ? new Date(phase.deadline).toISOString().split('T')[0] : ""}
+                            value={phase.deadline ? phase.deadline.split("T")[0] : ""}
                             onChange={(e) => handlePhaseDeadlineChange(phase, e.target.value)}
                             className={styles.phaseDateInput}
                             title="Definir prazo da etapa"
@@ -585,7 +600,7 @@ export default function ProjetosPage() {
                       ) : (
                         phase.deadline && (
                           <span className={styles.phaseDeadlineTag}>
-                            Prazo: {new Date(phase.deadline).toLocaleDateString("pt-BR")}
+                            Prazo: {new Date(phase.deadline).toLocaleDateString("pt-BR", { timeZone: "UTC" })}
                           </span>
                         )
                       )}
@@ -630,12 +645,99 @@ export default function ProjetosPage() {
                   </div>
                 )}
               </div>
-              <div className={styles.field}>
+              <div className={styles.field} style={{ position: "relative" }}>
                 <label>Atribuir a (Opcional)</label>
-                <select value={form.assignedTo} onChange={(e) => setForm({ ...form, assignedTo: e.target.value })} className={styles.input}>
-                  <option value="">Aberto para toda a equipe</option>
-                  {teamUsers.map((u) => <option key={u.id} value={u.id}>{u.name} ({u.role === "ADMIN" ? "Admin" : "Estagiário"})</option>)}
-                </select>
+                <div 
+                  className={styles.input} 
+                  style={{ display: "flex", flexWrap: "wrap", gap: "6px", minHeight: "42px", alignItems: "center", cursor: "pointer", padding: "6px 12px" }}
+                  onClick={() => setShowAssigneesDropdown(!showAssigneesDropdown)}
+                >
+                  {form.assignees.length === 0 ? (
+                    <span style={{ opacity: 0.6 }}>Aberto para toda a equipe</span>
+                  ) : (
+                    form.assignees.map(id => {
+                      const u = teamUsers.find(x => x.id === id);
+                      if (!u) return null;
+                      return (
+                        <div key={u.id} style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(201, 169, 110, 0.2)", color: "#C9A96E", padding: "4px 8px", borderRadius: "4px", fontSize: "0.85rem" }}>
+                          {u.name.split(" ")[0]}
+                          <div 
+                            style={{ cursor: "pointer", opacity: 0.7 }}
+                            onClick={(e) => { e.stopPropagation(); setForm({ ...form, assignees: form.assignees.filter(x => x !== u.id) }); }}
+                          >
+                            ×
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                {showAssigneesDropdown && (
+                  <>
+                    <div 
+                      style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 40 }} 
+                      onClick={() => setShowAssigneesDropdown(false)} 
+                    />
+                    <div style={{
+                      position: "absolute", top: "100%", left: 0, right: 0, zIndex: 50, marginTop: "4px",
+                      display: "flex", flexDirection: "column", gap: "8px",
+                      background: "#222", padding: "12px",
+                      borderRadius: "8px", border: "1px solid rgba(255,255,255,0.1)",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.5)"
+                    }}>
+                      <input
+                        type="text"
+                        placeholder="Buscar funcionário..."
+                        value={searchAssignee}
+                        onChange={(e) => setSearchAssignee(e.target.value)}
+                        className={styles.input}
+                        style={{ marginBottom: "4px", padding: "8px 12px", fontSize: "0.9rem" }}
+                        autoFocus
+                      />
+                      <div style={{
+                        display: "flex", flexDirection: "column", gap: "4px",
+                        maxHeight: "180px", overflowY: "auto", paddingRight: "4px"
+                      }}>
+                        {teamUsers
+                          .filter((u) => u.name.toLowerCase().includes(searchAssignee.toLowerCase()) || u.role.toLowerCase().includes(searchAssignee.toLowerCase()))
+                          .map((u) => (
+                          <label key={u.id} style={{
+                            display: "flex", alignItems: "center", gap: "10px",
+                            cursor: "pointer", fontSize: "0.95rem",
+                            padding: "8px 12px", borderRadius: "6px",
+                            background: form.assignees.includes(u.id) ? "rgba(201, 169, 110, 0.15)" : "transparent",
+                            border: form.assignees.includes(u.id) ? "1px solid rgba(201, 169, 110, 0.3)" : "1px solid transparent",
+                            transition: "all 0.2s"
+                          }}
+                          onMouseEnter={(e) => { if (!form.assignees.includes(u.id)) e.currentTarget.style.background = "rgba(255,255,255,0.05)" }}
+                          onMouseLeave={(e) => { if (!form.assignees.includes(u.id)) e.currentTarget.style.background = "transparent" }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={form.assignees.includes(u.id)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setForm({ ...form, assignees: [...form.assignees, u.id] });
+                                } else {
+                                  setForm({ ...form, assignees: form.assignees.filter(id => id !== u.id) });
+                                }
+                              }}
+                              style={{ width: "18px", height: "18px", cursor: "pointer", accentColor: "#C9A96E" }}
+                            />
+                            <div style={{ display: "flex", flexDirection: "column" }}>
+                              <span style={{ fontWeight: form.assignees.includes(u.id) ? "600" : "400", color: form.assignees.includes(u.id) ? "#C9A96E" : "#fff" }}>{u.name}</span>
+                              <span style={{ fontSize: "0.75rem", opacity: 0.6 }}>{u.role === "ADMIN" ? "Admin" : "Estagiário"}</span>
+                            </div>
+                          </label>
+                        ))}
+                        {teamUsers.filter((u) => u.name.toLowerCase().includes(searchAssignee.toLowerCase())).length === 0 && (
+                          <span style={{ fontSize: "0.85rem", opacity: 0.6, padding: "8px", textAlign: "center" }}>Nenhum funcionário encontrado.</span>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
               <div className={styles.row}>
                 <div className={styles.field}>

@@ -7,13 +7,28 @@ export async function PUT(request, { params }) {
     const { id } = await params;
     const body = await request.json();
 
+    const updateData = {
+      isCompleted: body.isCompleted ?? undefined,
+      description: body.description ?? undefined,
+    };
+
+    if (body.assignees !== undefined) {
+      if (Array.isArray(body.assignees) && body.assignees.length > 0) {
+        updateData.assignees = { set: body.assignees.map(id => ({ id })) };
+      } else {
+        updateData.assignees = { set: [] };
+      }
+    } else if (body.assignedTo !== undefined) {
+      if (body.assignedTo) {
+        updateData.assignees = { set: [{ id: body.assignedTo }] };
+      } else {
+        updateData.assignees = { set: [] };
+      }
+    }
+
     const task = await prisma.task.update({
       where: { id },
-      data: {
-        isCompleted: body.isCompleted ?? undefined,
-        description: body.description ?? undefined,
-        assignedTo: body.assignedTo !== undefined ? body.assignedTo : undefined,
-      },
+      data: updateData,
     });
 
     return NextResponse.json(task);

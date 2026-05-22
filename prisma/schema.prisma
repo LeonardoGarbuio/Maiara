@@ -92,8 +92,8 @@ model User {
   // Relations
   creator          User?              @relation("UserCreator", fields: [createdBy], references: [id])
   createdUsers     User[]             @relation("UserCreator")
-  assignedTasks    Task[]             @relation("TaskAssignee")
-  assignedProjects Project[]          @relation("ProjectAssignee")
+  assignedTasks    Task[]             @relation("TaskAssignees")
+  assignedProjects Project[]          @relation("ProjectAssignees")
   certificates     Certificate[]
   projectHistories ProjectHistory[]
   documentVersions DocumentVersion[]
@@ -130,13 +130,12 @@ model Project {
   installments Int?          @default(1)
   upfrontValue Decimal?      @map("upfront_value") @db.Decimal(30, 2)
   notes        String?
-  assignedTo   String?       @map("assigned_to")
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
 
   // Relations
   client           Client?                @relation(fields: [clientId], references: [id])
-  assignee         User?                  @relation("ProjectAssignee", fields: [assignedTo], references: [id])
+  assignees        User[]                 @relation("ProjectAssignees")
   phases           Phase[]
   documents        Document[]
   transactions     FinancialTransaction[]
@@ -146,7 +145,6 @@ model Project {
   DriveActivityLog DriveActivityLog[]
 
   @@index([status])
-  @@index([assignedTo])
   @@index([clientId])
   @@index([createdAt])
   @@map("projects")
@@ -192,15 +190,13 @@ model Task {
   phaseId     String   @map("phase_id")
   description String
   isCompleted Boolean  @default(false) @map("is_completed")
-  assignedTo  String?  @map("assigned_to")
   createdAt   DateTime @default(now()) @map("created_at")
 
   // Relations
-  phase    Phase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
-  assignee User? @relation("TaskAssignee", fields: [assignedTo], references: [id])
+  phase    Phase  @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  assignees User[] @relation("TaskAssignees")
 
   @@index([phaseId])
-  @@index([assignedTo])
   @@index([isCompleted])
   @@map("tasks")
 }

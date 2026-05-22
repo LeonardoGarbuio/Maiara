@@ -18,7 +18,7 @@ export async function GET(request) {
       where,
       orderBy: { createdAt: "desc" },
       include: {
-        user: { select: { id: true, name: true, email: true } },
+        user: { select: { id: true, name: true, username: true } },
       },
     });
 

@@ -169,24 +169,42 @@ export async function PUT(request, { params }) {
       finalClientId = body.clientId || null;
     }
 
-    // Aplica a atualização
-    const updated = await prisma.project.update({
-      where: { id },
-      data: {
-        name: body.name ?? currentProject.name,
+    // Aplica a atualização (preparando dados base)
+    const updateData = {
+      name: body.name ?? currentProject.name,
         clientId: finalClientId,
         status: body.status ?? currentProject.status,
         deadline: body.deadline ? new Date(body.deadline) : currentProject.deadline,
-        totalValue: body.totalValue ?? currentProject.totalValue,
+        totalValue: (body.totalValue !== undefined && body.totalValue !== "") ? Number(body.totalValue) : currentProject.totalValue,
         paymentType: body.paymentType ?? currentProject.paymentType,
-        installments: body.installments ?? currentProject.installments,
-        upfrontValue: body.upfrontValue ?? currentProject.upfrontValue,
+        installments: (body.installments !== undefined && body.installments !== "") ? Number(body.installments) : currentProject.installments,
+        upfrontValue: (body.upfrontValue !== undefined && body.upfrontValue !== "") ? Number(body.upfrontValue) : currentProject.upfrontValue,
         notes: body.notes ?? currentProject.notes,
-        assignedTo: body.assignedTo !== undefined ? (body.assignedTo || null) : currentProject.assignedTo,
-      },
+    };
+    // Aplica os responsáveis se vieram no payload
+    if (body.assignees !== undefined) {
+      if (Array.isArray(body.assignees) && body.assignees.length > 0) {
+        updateData.assignees = { set: body.assignees.map(id => ({ id })) };
+      } else {
+        updateData.assignees = { set: [] }; // Limpa a lista (aberto para toda a equipe)
+      }
+    } else if (body.assignedTo !== undefined) {
+      // Compatibilidade antiga
+      if (body.assignedTo) {
+        updateData.assignees = { set: [{ id: body.assignedTo }] };
+      } else {
+        updateData.assignees = { set: [] };
+      }
+    }
+
+    // Aplica a atualização
+    const updated = await prisma.project.update({
+      where: { id },
+      data: updateData,
       include: {
         client: { select: { id: true, name: true } },
         phases: { orderBy: { order: "asc" } },
+        assignees: { select: { id: true, name: true, role: true, avatarUrl: true } },
         transactions: {
           where: { type: "EXPENSE" },
           orderBy: { transactionDate: "desc" }
