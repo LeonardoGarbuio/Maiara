@@ -177,6 +177,9 @@ export default function EquipePage() {
               <div className={styles.userBadge}>{u.role === "ADMIN" ? "Admin" : "Arquiteta Líder"}</div>
               {u.id !== user?.id && (
                 <div className={styles.actionsWrapper}>
+                  <button className={styles.iconBtn} onClick={() => { setSelectedUserForPwd(u); setShowPwdModal(true); }} title="Redefinir Senha">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  </button>
                   <button className={`${styles.iconBtn} ${styles.iconBtnDanger}`} onClick={() => handleDelete(u.id)} title="Deletar">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
                   </button>
@@ -263,7 +266,7 @@ export default function EquipePage() {
             </div>
             <div className={styles.modalBody}>
               <p style={{ marginBottom: "16px", color: "rgba(255,255,255,0.7)" }}>
-                Defina uma nova senha para o estagiário <strong>{selectedUserForPwd?.name}</strong>. Ele poderá usar essa senha para fazer login imediatamente.
+                Defina uma nova senha para {selectedUserForPwd?.role === "ADMIN" ? "o administrador" : selectedUserForPwd?.role === "LEAD_ARCHITECT" ? "a arquiteta líder" : "o estagiário"} <strong>{selectedUserForPwd?.name}</strong>. Ele poderá usar essa senha para fazer login imediatamente.
               </p>
               <div className={styles.field}>
                 <label>Nova Senha</label>
