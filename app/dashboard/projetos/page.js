@@ -428,6 +428,34 @@ export default function ProjetosPage() {
     }
   };
 
+  const handlePhaseDeadlineChange = async (phase, dateValue) => {
+    try {
+      const res = await fetch(`/api/phases/${phase.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          deadline: dateValue ? dateValue : null,
+          userId: user?.id
+        }),
+      });
+
+      if (!res.ok) throw new Error("Erro ao atualizar prazo");
+      const updatedPhase = await res.json();
+
+      setProjects((prev) => prev.map((p) => {
+        if (p.id === phase.projectId) {
+          const updatedPhases = p.phases.map((ph) => ph.id === phase.id ? { ...ph, deadline: updatedPhase.deadline } : ph);
+          return { ...p, phases: updatedPhases };
+        }
+        return p;
+      }));
+
+      showToast("Prazo da etapa atualizado!");
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  };
+
   if (loading) {
     return (
       <div className={styles.page}>
@@ -511,11 +539,11 @@ export default function ProjetosPage() {
               </div>
 
               <div className={styles.cardMeta}>
-                <span className={styles.typeTag}>{project.type === "INTERIOR" ? "🏠 Interiores" : "🏗️ Arquitetônico"}</span>
+                <span className={styles.typeTag}>{project.type === "INTERIOR" ? "Interiores" : "Arquitetônico"}</span>
                 {project.totalValue && <span className={styles.value}>R$ {Number(project.totalValue).toLocaleString("pt-BR")}</span>}
                 {project.deadline && (
                   <span className={isOverdue ? styles.deadlineOverdue : styles.deadline}>
-                    📅 {new Date(project.deadline).toLocaleDateString("pt-BR")}
+                    Prazo: {new Date(project.deadline).toLocaleDateString("pt-BR")}
                   </span>
                 )}
               </div>
@@ -527,18 +555,42 @@ export default function ProjetosPage() {
 
               <div className={styles.phases}>
                 {phases.map((phase) => (
-                  <button
+                  <div
                     key={phase.id}
                     className={`${styles.phase} ${phase.status === "COMPLETED" ? styles.phaseCompleted : phase.status === "IN_PROGRESS" ? styles.phaseInProgress : styles.phasePending}`}
-                    onClick={() => handlePhaseToggle(project, phase)}
-                    title={phase.name}
                   >
-                    <span className={styles.phaseOrder}>{phase.order}</span>
-                    <span className={styles.phaseName}>{phase.name}</span>
-                    <span className={styles.phaseCheck}>
-                      {phase.status === "COMPLETED" ? "✓" : phase.status === "IN_PROGRESS" ? "▶" : "○"}
-                    </span>
-                  </button>
+                    <div 
+                      className={styles.phaseClickableArea} 
+                      onClick={() => handlePhaseToggle(project, phase)}
+                      title={`Clique para alterar o status de: ${phase.name}`}
+                    >
+                      <span className={styles.phaseOrder}>{phase.order}</span>
+                      <span className={styles.phaseName}>{phase.name}</span>
+                      <span className={styles.phaseCheck}>
+                        {phase.status === "COMPLETED" ? "✓" : phase.status === "IN_PROGRESS" ? "▶" : "○"}
+                      </span>
+                    </div>
+
+                    <div className={styles.phaseDeadlineArea} onClick={(e) => e.stopPropagation()}>
+                      {isAdmin ? (
+                        <div className={styles.phaseDatePickerWrapper}>
+                          <input
+                            type="date"
+                            value={phase.deadline ? new Date(phase.deadline).toISOString().split('T')[0] : ""}
+                            onChange={(e) => handlePhaseDeadlineChange(phase, e.target.value)}
+                            className={styles.phaseDateInput}
+                            title="Definir prazo da etapa"
+                          />
+                        </div>
+                      ) : (
+                        phase.deadline && (
+                          <span className={styles.phaseDeadlineTag}>
+                            Prazo: {new Date(phase.deadline).toLocaleDateString("pt-BR")}
+                          </span>
+                        )
+                      )}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>

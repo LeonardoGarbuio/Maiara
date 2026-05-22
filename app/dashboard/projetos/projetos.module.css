@@ -93,3 +93,51 @@
 .toast { position: fixed; bottom: 28px; right: 28px; padding: 16px 22px; border-radius: var(--radius-md); font-size: 0.9rem; font-weight: 500; z-index: 200; animation: fadeIn 0.3s ease-out; box-shadow: var(--shadow-elevated); }
 .toastSuccess { background: rgba(201, 169, 110,0.9); color: #fff; }
 .toastError { background: rgba(239,68,68,0.9); color: #fff; }
+
+/* Interactive Phase Deadlines */
+.phaseClickableArea {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  cursor: pointer;
+}
+
+.phaseDeadlineArea {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.phaseDeadlineTag {
+  font-size: 0.72rem;
+  color: var(--sage-400);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.phaseDatePickerWrapper {
+  display: flex;
+  align-items: center;
+}
+
+.phaseDateInput {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.72rem;
+  padding: 3px 6px;
+  outline: none;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 120px;
+}
+
+.phaseDateInput:focus, .phaseDateInput:hover {
+  border-color: var(--gold-500);
+  background: rgba(255, 255, 255, 0.08);
+}

@@ -331,13 +331,15 @@ export default function DriveExplorer({ projectId, userRole, onClose }) {
 
   const getExtensionIcon = (ext) => {
     const e = (ext || "").toLowerCase();
-    if (['png','jpg','jpeg','webp','gif'].includes(e)) return "🖼️";
-    if (['pdf'].includes(e)) return "📕";
-    if (['doc','docx'].includes(e)) return "📘";
-    if (['xls','xlsx'].includes(e)) return "📗";
-    if (['zip','rar'].includes(e)) return "📦";
-    if (['dwg','rvt'].includes(e)) return "🏗️";
-    return "📄";
+    if (['png','jpg','jpeg','webp','gif'].includes(e)) return <span className={styles.extBadge} style={{backgroundColor: '#10B981'}}>IMG</span>;
+    if (['pdf'].includes(e)) return <span className={styles.extBadge} style={{backgroundColor: '#EF4444'}}>PDF</span>;
+    if (['doc','docx'].includes(e)) return <span className={styles.extBadge} style={{backgroundColor: '#3B82F6'}}>DOC</span>;
+    if (['xls','xlsx'].includes(e)) return <span className={styles.extBadge} style={{backgroundColor: '#059669'}}>XLS</span>;
+    if (['zip','rar'].includes(e)) return <span className={styles.extBadge} style={{backgroundColor: '#8B5CF6'}}>ZIP</span>;
+    if (['dwg','dxf'].includes(e)) return <span className={styles.extBadge} style={{backgroundColor: '#B8962E'}}>CAD</span>;
+    if (['skp'].includes(e)) return <span className={styles.extBadge} style={{backgroundColor: '#EC4899'}}>SKP</span>;
+    if (['rvt'].includes(e)) return <span className={styles.extBadge} style={{backgroundColor: '#D97706'}}>RVT</span>;
+    return <span className={styles.extBadge} style={{backgroundColor: '#6B7280'}}>ARQ</span>;
   };
 
   return (
@@ -418,7 +420,12 @@ export default function DriveExplorer({ projectId, userRole, onClose }) {
           <div className={styles.loadingState}>Carregando...</div>
         ) : folders.length === 0 && documents.length === 0 ? (
           <div className={styles.emptyState}>
-            <div className={styles.emptyIcon}>📭</div>
+            <div className={styles.emptyIcon}>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ opacity: 0.4 }}>
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                <line x1="9" y1="14" x2="15" y2="14" />
+              </svg>
+            </div>
             <p className={styles.emptyText}>Pasta vazia</p>
           </div>
         ) : (
@@ -460,7 +467,11 @@ export default function DriveExplorer({ projectId, userRole, onClose }) {
                     </div>
                   )}
                   
-                  <div className={styles.folderIcon}>📁</div>
+                  <div className={styles.folderIcon}>
+                    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--gold-400)" strokeWidth="2" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.15))' }}>
+                      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                    </svg>
+                  </div>
                   
                   {editingItem?.id === folder.id && editingItem?.type === 'folder' ? (
                     <form onSubmit={saveEdit} className="w-full" onClick={e => e.stopPropagation()}>

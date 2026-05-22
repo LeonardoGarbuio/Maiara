@@ -102,7 +102,7 @@ export async function POST(request) {
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from("project-files")
       .upload(filePath, buffer, {
-        contentType: file.type,
+        contentType: file.type || "application/octet-stream",
       });
 
     if (uploadError) throw uploadError;
