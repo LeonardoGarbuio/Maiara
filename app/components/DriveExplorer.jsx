@@ -224,31 +224,71 @@ export default function DriveExplorer({ projectId, userRole, onClose }) {
   const handleUpload = async (e) => {
     e.preventDefault();
     if (!uploadFile) return;
-    const fd = new FormData();
-    fd.append("file", uploadFile);
-    fd.append("projectId", projectId);
-    if (currentFolderId) fd.append("folderId", currentFolderId);
-    fd.append("notes", uploadNotes);
+    
     try {
-      const res = await fetch("/api/drive/documents", { method: "POST", body: fd });
-      if (res.ok) {
+      // 1. Solicitar URL assinada
+      const presignRes = await fetch("/api/drive/documents/presign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectId,
+          folderId: currentFolderId || null,
+          fileName: uploadFile.name,
+          fileType: uploadFile.type,
+        })
+      });
+
+      if (!presignRes.ok) {
+        let errData = {};
+        try { errData = await presignRes.json(); } catch(e) {}
+        alert(`Erro na preparação do upload (${presignRes.status}): ${errData.error || "Erro desconhecido"}`);
+        return;
+      }
+
+      const { signedUrl, filePath, phaseId } = await presignRes.json();
+
+      // 2. Fazer o upload direto para o Supabase (ignora o limite da Vercel)
+      const uploadRes = await fetch(signedUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": uploadFile.type || "application/octet-stream"
+        },
+        body: uploadFile
+      });
+
+      if (!uploadRes.ok) {
+        alert("Erro ao enviar o arquivo para o armazenamento. Tente novamente.");
+        return;
+      }
+
+      // 3. Confirmar o upload e salvar no banco de dados
+      const confirmRes = await fetch("/api/drive/documents/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectId,
+          folderId: currentFolderId || null,
+          notes: uploadNotes,
+          filePath,
+          fileName: uploadFile.name,
+          fileExtension: uploadFile.name.split('.').pop(),
+          phaseId
+        })
+      });
+
+      if (confirmRes.ok) {
         setIsUploadModalOpen(false);
         setUploadFile(null);
         setUploadNotes("");
         fetchContents(currentFolderId);
       } else {
         let errData = {};
-        try { errData = await res.json(); } catch(e) {}
-        
-        if (res.status === 413) {
-          alert("Erro upload (413): O arquivo é muito grande para os limites da hospedagem (Vercel permite máx ~4.5MB).");
-        } else {
-          alert(`Erro upload (${res.status}): ${errData.error || "Erro desconhecido. Verifique o tamanho do arquivo ou a conexão."}`);
-        }
+        try { errData = await confirmRes.json(); } catch(e) {}
+        alert(`Erro ao finalizar upload (${confirmRes.status}): ${errData.error || "Erro desconhecido"}`);
       }
     } catch (err) {
       console.error(err);
-      alert("Erro ao enviar arquivo. Pode ser um problema de rede ou o arquivo é muito grande.");
+      alert("Erro ao enviar arquivo. Pode ser um problema de rede.");
     }
   };
 
