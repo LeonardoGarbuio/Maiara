@@ -237,11 +237,18 @@ export default function DriveExplorer({ projectId, userRole, onClose }) {
         setUploadNotes("");
         fetchContents(currentFolderId);
       } else {
-        const errData = await res.json();
-        alert(`Erro upload (${res.status}): ${errData.error || "Erro desconhecido"}`);
+        let errData = {};
+        try { errData = await res.json(); } catch(e) {}
+        
+        if (res.status === 413) {
+          alert("Erro upload (413): O arquivo é muito grande para os limites da hospedagem (Vercel permite máx ~4.5MB).");
+        } else {
+          alert(`Erro upload (${res.status}): ${errData.error || "Erro desconhecido. Verifique o tamanho do arquivo ou a conexão."}`);
+        }
       }
     } catch (err) {
       console.error(err);
+      alert("Erro ao enviar arquivo. Pode ser um problema de rede ou o arquivo é muito grande.");
     }
   };
 

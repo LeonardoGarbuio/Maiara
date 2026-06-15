@@ -92,17 +92,15 @@ export async function POST(request) {
     
     await ensureBucketExists("project-files");
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    
     const fileExtension = file.name.split('.').pop();
     const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExtension}`;
     const filePath = `drive/${projectId}/${fileName}`;
 
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from("project-files")
-      .upload(filePath, buffer, {
+      .upload(filePath, file, {
         contentType: file.type || "application/octet-stream",
+        upsert: false,
       });
 
     if (uploadError) throw uploadError;
